@@ -25,13 +25,14 @@ public class AppRender extends Container implements ListCellRenderer {
 
     private Label vaccine_name=new Label("");
     private Label scheduled_date = new Label("");
+    private Label administered_date = new Label("");
     private Label focus = new Label("");
     private Label dose = new Label("");
     private Container cnt;
     private Container childcnt;
     private Container caretakercnt;
     private Container Administeredcnt;
-    private Font lblFont = Font.getBitmapFont("mvaccalibri13");
+//    private Font lblFont = Font.getBitmapFont("mvaccalibri13");
     private String vaccine_dose = new String();
 
     public AppRender(){
@@ -40,10 +41,10 @@ public class AppRender extends Container implements ListCellRenderer {
         caretakercnt = new Container(new BoxLayout(BoxLayout.X_AXIS));
         Administeredcnt = new Container(new BoxLayout(BoxLayout.X_AXIS));
 
-        scheduledlbl.getStyle().setFont(lblFont, true);
-        administeredlbl.getStyle().setFont(lblFont,true);
-
-        vaccine_name.getStyle().setFont(lblFont,true);
+//        scheduledlbl.getStyle().setFont(lblFont, true);
+//        administeredlbl.getStyle().setFont(lblFont,true);
+//
+//        vaccine_name.getStyle().setFont(lblFont,true);
         scheduled_date.getStyle().setBgTransparency(0);
         dose.getStyle().setBgTransparency(0);
         
@@ -57,7 +58,7 @@ public class AppRender extends Container implements ListCellRenderer {
         caretakercnt.addComponent(scheduled_date);
 
         Administeredcnt.addComponent(administeredlbl);
-        //Administeredcnt.addComponent(dose);
+        Administeredcnt.addComponent(administered_date);
         
         
         cnt.addComponent(childcnt);
@@ -96,10 +97,14 @@ public class AppRender extends Container implements ListCellRenderer {
         vaccine_name.setText(vaccine_dose);
 
         String date = appointment.getSchedule_date();
-        date = date.substring(0, date.indexOf("T"));
+        if(date.indexOf("T")>=0){
+          date = date.substring(0, date.indexOf("T"));  
+        }
+        
 
         scheduled_date.setText(date);
         dose.setText(appointment.getDose());
+        administered_date.setText(appointment.getImmunization_date());
 
         return this;
 

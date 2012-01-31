@@ -5,7 +5,10 @@
 
 package org.openxdata.mvac.mobile.view;
 
+import java.util.Enumeration;
 import java.util.Vector;
+import org.openxdata.mvac.mobile.util.DateParser;
+import org.openxdata.workflow.mobile.model.MQuestionMap;
 import org.openxdata.workflow.mobile.model.MWorkItem;
 
 /**
@@ -68,7 +71,8 @@ public class AppointmentWrapper {
     }
     
     public Vector getWorkItems(){
-        return workItems;
+        return workItems ;
+//        return quicksort(workItems, 0, workItems.size()-1);
     }
 
     public String getCaretaker() {
@@ -95,6 +99,80 @@ public class AppointmentWrapper {
     public void setName(String name) {
         this.name = name;
     }
+
+
+  private Vector quicksort(Vector array, int left, int right) {
+        int i = left;
+        int j = right;
+        Object h;
+
+        long x = -1 ;
+        Object objectx = array.elementAt((right + left) / 2);
+        MWorkItem mWorkItem = (MWorkItem)objectx ;
+         x = getTimeStamp(mWorkItem);
+         
+        
+
+        //do Partition
+        do {
+            
+            while ( (i >= 0) && getTimeStamp(((MWorkItem)array.elementAt(i))) < x) {
+                i++;
+            }
+            while ( (j >= 0) && getTimeStamp(((MWorkItem)array.elementAt(j))) > x) {
+                j--;
+            }
+            if (i <= j) {
+
+                h = array.elementAt(i);
+
+                //swap a[i] and a[j] a[i] = a[j]
+
+                Object tempj = array.elementAt(j);
+                array.removeElementAt(i);
+                array.insertElementAt(tempj, i);
+
+                array.removeElementAt(j);
+                array.insertElementAt(h, j);
+                i++;
+                j--;
+            }
+
+        } while (i < j);
+        if (left < j) {
+            quicksort(array, left, j);
+        }
+        if (i < right) {
+            quicksort(array, i, right);
+        }
+
+        return array;
+    }
+        
+        
+        private long getTimeStamp(MWorkItem wir){
+            long resp = -1 ;
+
+            Vector v = wir.getPrefilledQns() ;
+            for(Enumeration e = v.elements() ; e.hasMoreElements(); ){
+
+                MQuestionMap qnMap = (MQuestionMap)e.nextElement();
+                String quename = qnMap.getQuestion() ;
+                if(quename.equals("scheduled_date")){
+                    resp = DateParser.getTymeStamp(qnMap.getValue(), "-");
+                    break;
+                }
+            }
+            
+            return  resp ;
+        }
+
+        public void sort(){
+            quicksort(workItems, 0, workItems.size()-1);
+        }
+
+
+
 
     
 

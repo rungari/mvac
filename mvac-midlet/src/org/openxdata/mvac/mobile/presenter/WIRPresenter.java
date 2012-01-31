@@ -128,7 +128,13 @@ public class WIRPresenter extends FormListenerAdaptor
     }
 
     private void submitWorkItems() {
-        dldMgr.uploadWorkItems(this);
+        try {
+            dldMgr.uploadWorkItems(this);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } catch (Error ex) {
+            ex.printStackTrace();
+        }
     }
 
     public void downloaded(Persistent dataOutParams, Persistent dataOut) {

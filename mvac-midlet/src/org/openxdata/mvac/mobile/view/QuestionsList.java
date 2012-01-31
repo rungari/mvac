@@ -39,7 +39,7 @@ public class QuestionsList extends  Form implements IView,StorageListener,Action
     private QuestionListObj[] ques;
     private List list;
     private  TextField field = new TextField("", 20);
-    private Font lblFont = Font.getBitmapFont("mvaccalibri13");
+    //private Font lblFont = Font.getBitmapFont("mvaccalibri13");
     private Label searchlbl = new Label("Search:");
     private IView parent;
     private MWorkItem wir;
@@ -104,8 +104,8 @@ public class QuestionsList extends  Form implements IView,StorageListener,Action
 //             }
 //
 //         }
-         if(((MvacController)AppUtil.get().getItem(Constants.CONTROLLER)).newsetWorkItem(this.wir,this)){
-            ((MvacController)AppUtil.get().getItem(Constants.CONTROLLER)).afterSetWorkItems(this.wir,this);
+         if(((MvacController)AppUtil.get().getItem(Constants.CONTROLLER)).newsetWorkItem(this.wir)){
+            ((MvacController)AppUtil.get().getItem(Constants.CONTROLLER)).afterSetWorkItems(this.wir);
              nowShow();
          }else{
              downloadForm();
@@ -138,6 +138,8 @@ public class QuestionsList extends  Form implements IView,StorageListener,Action
                 que.setType("Check box");
             }else if(question.equals("Notes")){
                 que.setType("textarea");
+            }else if(question.equals("Reason")){
+                que.setType("dropdown1");
             }
 
             //ihub
@@ -161,7 +163,7 @@ System.out.println("@ QuestionList :initItems : Text :" + qd.getText() + "  Text
         setLayout(new BorderLayout());
 
         field.setConstraint(TextField.ANY);
-        searchlbl.getStyle().setFont(lblFont);
+        //searchlbl.getStyle().setFont(lblFont);
         field.setLabelForComponent(searchlbl);
         field.addDataChangeListener(new DataChangedListener() {
 

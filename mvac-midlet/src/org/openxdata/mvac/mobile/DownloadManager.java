@@ -35,10 +35,35 @@ public class DownloadManager implements StorageListener {
     }
 
 
-    public void downloadWorkItems(TransportLayerListener tlListener) {
+    public void downloadWorkItems(TransportLayerListener tlListener) throws Error{
         setCommunicationParams();
 
-        WFRequest      req                = getRequest("WIRDownload", null);
+        WFRequest      req                = getRequest("IISWIRDownload", null);
+        MWorkItemList  workItemsToReceive = new MWorkItemList();
+        Persistent     localData          = null;
+        ResponseHeader rh                 = new ResponseHeader();
+        System.out.println("tlayerDownload");
+        tLayer.download(req, localData, rh, workItemsToReceive, tlListener, req.userName, req.password,
+                        "Downloading Appointments");
+    }
+    
+    
+    public void downloadWorkItemsByIISID(TransportLayerListener tlListener) {
+        setCommunicationParams();
+
+        WFRequest      req                = getRequest("IISWIRDownloadById", null);
+        MWorkItemList  workItemsToReceive = new MWorkItemList();
+        Persistent     localData          = null;
+        ResponseHeader rh                 = new ResponseHeader();
+        System.out.println("tlayerDownload");
+        tLayer.download(req, localData, rh, workItemsToReceive, tlListener, req.userName, req.password,
+                        "Downloading Appointments");
+    }
+    
+    public void downloadLotNames(TransportLayerListener tlListener) {
+        setCommunicationParams();
+
+        WFRequest      req                = getRequest("LotNameDownload", null);
         MWorkItemList  workItemsToReceive = new MWorkItemList();
         Persistent     localData          = null;
         ResponseHeader rh                 = new ResponseHeader();
@@ -70,16 +95,35 @@ public class DownloadManager implements StorageListener {
                         "Downloading forms...");
     }
 
-    public void uploadWorkItems(TransportLayerListener tLayerListener) {
+    public void uploadWorkItems(TransportLayerListener tLayerListener) throws Exception , Error{
         setCommunicationParams();
-
-        WFRequest         req             = getRequest("WIRUpload", "epihandyser");
+        
+        System.out.println("@ DowloadManager.uploadWorkItems : getting request");
+        
+        WFRequest         req             = getRequest("IISWIRUpload", "epihandyser");
+        
+        System.out.println("@ DowloadManager.uploadWorkItems : gotten request");
+        
         MWorkItemDataList dataList        = getMWorkItemDatalist();
-        ResponseHeader    rh              = new ResponseHeader();
-        Persistent        nullDataFromOut = null;
 
-        tLayer.upload(req, dataList, rh, nullDataFromOut, tLayerListener, req.getUserName(), req.getPassword(),
+        
+        
+        System.out.println("<<<<<<<<<<< @DownloadManager.uploadWorkItems : Datalist is :" +((dataList!=null)?"Not null":"Null"));
+        if (dataList!=null) {
+
+            System.out.println("@ DowloadManager.uploadWorkItems : gotten datalist of ->"+dataList.getDataList().size());
+            ResponseHeader    rh              = new ResponseHeader();
+            System.out.println("@ DowloadManager.uploadWorkItems : gotten response header");
+        
+            Persistent        nullDataFromOut = null;
+
+            tLayer.upload(req, dataList, rh, nullDataFromOut, tLayerListener, req.getUserName(), req.getPassword(),
                       "Uploading workItems...");
+        }else{
+            System.out.println(" No data available to upload ") ;
+            tLayerListener.uploaded(null, null);
+        }
+        
     }
 
     public void dowloadWIRPreview(TransportLayerListener wirInfoPresenter) {
@@ -95,23 +139,65 @@ public class DownloadManager implements StorageListener {
     }
 
     private WFRequest getRequest(String action, String seriliser) {
-        System.out.println("Username=>"+(String)AppUtil.get().getItem(Constants.USERNAME));
+         System.out.println("Username=>"+(String)AppUtil.get().getItem(Constants.USERNAME));
          System.out.println("Password=>"+(String)AppUtil.get().getItem(Constants.PASSWROD));
-        WFRequest wfRequest = new WFRequest((String)AppUtil.get().getItem(Constants.USERNAME), (String)AppUtil.get().getItem(Constants.PASSWROD), action);
+         System.out.println("NurseName=>"+(String)AppUtil.get().getItem(Constants.NURSENAME));
+         System.out.println("DownloadDate=>"+(String)AppUtil.get().getItem(Constants.DOWNLOAD_DATE));
+         System.out.println("Action=>"+action);
+         System.out.println("Serialiser=>"+seriliser);
+         String nurseName=(String)AppUtil.get().getItem(Constants.NURSENAME);
+         String downDate = (String)AppUtil.get().getItem(Constants.DOWNLOAD_DATE);
+         
+         if(nurseName==null){
+             nurseName="NoNurse";
+         }
+         if (downDate==null) {
+            downDate="NoDate";
+        }
+         
+        WFRequest wfRequest = new WFRequest((String)AppUtil.get().getItem(Constants.USERNAME), (String)AppUtil.get().getItem(Constants.PASSWROD),action,nurseName,downDate);
 
         wfRequest.setSerializer(seriliser);
 
         return wfRequest;
     }
+    
+    private WFRequest getRequestById(String action, String seriliser) {
+        System.out.println("Username=>"+(String)AppUtil.get().getItem(Constants.USERNAME));
+         System.out.println("Password=>"+(String)AppUtil.get().getItem(Constants.PASSWROD));
+         System.out.println("NurseName=>"+(String)AppUtil.get().getItem(Constants.NURSENAME));
+         System.out.println("DownloadDate=>"+(String)AppUtil.get().getItem(Constants.DOWNLOAD_DATE));
+         String nurseName=(String)AppUtil.get().getItem(Constants.NURSENAME);
+         String downDate = (String)AppUtil.get().getItem(Constants.DOWNLOAD_DATE);
+         
+         if(nurseName==null){
+             nurseName="NoNurse";
+         }
+         if (downDate==null) {
+            downDate="NoDate";
+        }
+         
+        WFRequest wfRequest = new WFRequest((String)AppUtil.get().getItem(Constants.USERNAME), (String)AppUtil.get().getItem(Constants.PASSWROD),action,nurseName,downDate);
+
+        wfRequest.setSerializer(seriliser);
+
+        return wfRequest;
+    }
+    
+    
 
     public void setCommunicationParams() {
-        String url = ConnectionSettings.getHttpUrl();
-
-        if (url != null) {
+        //String url = ConnectionSettings.getHttpUrl();
+        System.out.println("@ DowloadManager : url->"+Constants.DWN_URL);
+        tLayer.setCommunicationParameter(TransportLayer.KEY_HTTP_URL, Constants.DWN_URL);
+//        if (url != null) {
+//            
+//        }
             //http://158.38.65.142:8888/openxdatawf/wirdownload
             //http://localhost:8888/wirdownload
-            tLayer.setCommunicationParameter(TransportLayer.KEY_HTTP_URL, "http://158.38.65.142:8888/openxdatawf/wirdownload");
-        }
+//            tLayer.setCommunicationParameter(TransportLayer.KEY_HTTP_URL, "http://158.38.65.142:8888/openxdatawf/wirdownload");
+            
+        
     }
 
     public void errorOccured(String errorMessage, Exception e) {
@@ -119,7 +205,21 @@ public class DownloadManager implements StorageListener {
     }
 
     private MWorkItemDataList getMWorkItemDatalist() {
-        Vector            workItemList = WFStorage.getMWorkItemListWithData(this);
+        System.out.println("@ DowloadManager : getting workItemList->");
+        Vector   workItemList =null;
+        
+        try {
+            workItemList = WFStorage.getMWorkItemListWithData(this);
+        } catch (Exception e) {
+            System.out.println("@ DowloadManager : Exception Here");
+            //e.printStackTrace();
+        }
+         
+        System.out.println("@ DowloadManager : gotten workItemList->"+workItemList);
+        if(workItemList==null){
+            return null;
+        }
+        System.out.println("@ DowloadManager : continuing workItemList->"+workItemList);
         MWorkItemDataList dataList     = new MWorkItemDataList();
 
         for (int i = 0; i < workItemList.size(); i++) {

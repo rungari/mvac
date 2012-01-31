@@ -18,6 +18,7 @@ public class Appointment {
     private String caretaker;
     private String vaccine_name;
     private String schedule_date;
+    private String immunization_date="";
     private String dose;
 
 
@@ -83,6 +84,19 @@ public class Appointment {
     public void setDose(String dose) {
         this.dose = dose;
     }
+
+    public String getImmunization_date() {
+        return immunization_date;
+    }
+
+    public void setImmunization_date(String immunization_date) {
+        if (immunization_date!=null) {
+            this.immunization_date = immunization_date;
+        }
+        
+    }
+    
+    
 
     
 

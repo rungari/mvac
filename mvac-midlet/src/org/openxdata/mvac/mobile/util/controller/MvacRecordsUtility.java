@@ -5,6 +5,8 @@
 
 package org.openxdata.mvac.mobile.util.controller;
 
+import org.openxdata.mvac.mobile.db.WFStorage;
+
 /**
  *
  * @author soyfactor

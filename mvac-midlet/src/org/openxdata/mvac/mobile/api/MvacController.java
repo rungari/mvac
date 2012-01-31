@@ -8,6 +8,7 @@ import com.sun.lwuit.Display;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
 import java.util.Date;
+import java.util.Hashtable;
 import java.util.Vector;
 import org.openxdata.communication.TransportLayerListener;
 import org.openxdata.db.OpenXdataDataStorage;
@@ -31,6 +32,7 @@ import org.openxdata.mvac.mobile.util.view.api.IView;
 import org.openxdata.mvac.mobile.view.FBProgressIndicator;
 import org.openxdata.workflow.mobile.model.MQuestionMap;
 import org.openxdata.workflow.mobile.model.MWorkItem;
+import org.openxdata.mvac.mobile.api.SavingListener;
 
 /**
  *
@@ -65,9 +67,11 @@ public class MvacController implements TransportLayerListener,ActionListener,Sto
     private Vector displayedQuestions;
     private Vector prefilledQuestions=new Vector(0);
 
-    private IView parent;
+    //private IView parent;
 
     private boolean dirty = false;
+    
+    private SavingListener savingListener = null;
 
     public MvacController() {
         System.out.println("init view fac");
@@ -82,6 +86,10 @@ public class MvacController implements TransportLayerListener,ActionListener,Sto
     public DownloadManager getDM(){
             return dwnLdMgr;
         
+    }
+    
+    public void setListener(SavingListener listener){
+        this.savingListener = listener ;
     }
 
     public void initItems(FormData formData){
@@ -126,9 +134,8 @@ public class MvacController implements TransportLayerListener,ActionListener,Sto
     }
 
 
-    public void setWorkItem(MWorkItem wir,IView parent){
+    public void setWorkItem(MWorkItem wir){
          this.wir=wir;
-         this.parent = parent;
         //this.wir.setPrefilledQns(displayedQuestions)getStudyId();
         if(formutil.getFormDef(this.wir)==null){
     System.out.println("@ MvacController : setWorkItem : Null");
@@ -144,9 +151,8 @@ public class MvacController implements TransportLayerListener,ActionListener,Sto
     }
 
 
-    public boolean newsetWorkItem(MWorkItem wir,IView parent){
+    public boolean newsetWorkItem(MWorkItem wir){
          this.wir=wir;
-         this.parent = parent;
         //this.wir.setPrefilledQns(displayedQuestions)getStudyId();
         if(formutil.getFormDef(this.wir)==null){
     System.out.println("@ MvacController : setWorkItem : Null");
@@ -163,7 +169,7 @@ public class MvacController implements TransportLayerListener,ActionListener,Sto
 
     }
 
-    public void afterSetWorkItems(MWorkItem wir,IView parent){
+    public void afterSetWorkItems(MWorkItem wir){
         formDef = formutil.getFormDef(this.wir);
         formData = formutil.getFormData(formDef, this.wir);
         this.wir.setDataRecId(new Integer(formData.getRecordId()));
@@ -172,13 +178,13 @@ public class MvacController implements TransportLayerListener,ActionListener,Sto
         initItems(formData);
     }
 
-    public void lastScreen(){
-        if(parent!=null){
-                parent.resume(null);
-            }else{
-                //do nothing. never gon happen
-            }
-    }
+//    public void lastScreen(){
+//        if(parent!=null){
+//                parent.resume(null);
+//            }else{
+//                //do nothing. never gon happen
+//            }
+//    }
 
     public void showform(MWorkItem wir) {
 
@@ -238,6 +244,7 @@ public class MvacController implements TransportLayerListener,ActionListener,Sto
 
 
     public void uploadData(IView activatingView){
+System.out.println("@ Controller : uploadData");
         this.activatingView = activatingView;
         this.isupload=true;
         progress = new FBProgressIndicator(this,"Uploading Data...");
@@ -245,7 +252,14 @@ public class MvacController implements TransportLayerListener,ActionListener,Sto
         new BackgroundTask() {
 
             public void performTask() {
-                dwnLdMgr.uploadWorkItems(MvacController.this);
+                try {
+                    dwnLdMgr.uploadWorkItems(MvacController.this);
+                    //dwnLdMgr.uploadWorkItems(null);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                } catch (Error ex) {
+                    ex.printStackTrace();
+                }
                 //dwnLdMgr.uploadWorkItems(null);
             }
 
@@ -275,7 +289,11 @@ public class MvacController implements TransportLayerListener,ActionListener,Sto
     public boolean beforeFormDisplay(FormData frmData) {
 
         // Do form prefilling before the form is displayed
+        System.out.println("before form display reading form Name");
         String formName     = frmData.getDef().getVariableName();
+        
+        System.out.println("before form display read form Name=>"+formName);
+        
         Vector prefilledQns = this.wir.getPrefilledQns();
 
         for (int i = 0; i < prefilledQns.size(); i++) {
@@ -301,39 +319,45 @@ public class MvacController implements TransportLayerListener,ActionListener,Sto
 
         Vector pages = formData.getPages();
         //System.out.println("Size of pages=>"+pages.size());
-        //we will always heave one page for this app.
-        //makes my life simpler
-        mypage = (PageData)pages.elementAt(0);
-        int numQuestions = mypage.getNumberOfQuestions();
-
-        System.out.println("Size of questions=>"+numQuestions);
-
-        Vector qtns = mypage.getQuestions();
-        QuestionData qd;
-
-        for(int w=0;w<displayedQuestions.size();w++){
-            currentQuestion = (QuestionData)displayedQuestions.elementAt(w);
-            for (int i = 0; i < qtns.size(); i++) {
+        //we will always heave one page for this app.. Not!
+        //changed to my life simpler
+        
+        for (int pageIndex = 0; pageIndex < pages.size(); pageIndex++) {
             
-            qd=(QuestionData)qtns.elementAt(i);
-            System.out.println("Showing text=>"+qd.getText());
-            System.out.println("Expected text=>"+currentQuestion.getText());
-            if(qd.getId()==currentQuestion.getId()){
-                System.out.println("Setting answer hurra!=>"+currentQuestion.getTextAnswer());
-                QuestionData tmp = new QuestionData((QuestionData)qtns.elementAt(i));
-                tmp.setTextAnswer(currentQuestion.getTextAnswer());
+            mypage = (PageData) pages.elementAt(pageIndex);
+            int numQuestions = mypage.getNumberOfQuestions();
 
-                qtns.setElementAt(tmp, i);
-                System.out.println("Set answer hurra!=>"+(((QuestionData)qtns.elementAt(i)).getTextAnswer()));
-                break;
+            System.out.println("Size of questions=>" + numQuestions);
+
+            Vector qtns = mypage.getQuestions();
+            QuestionData qd;
+
+            for (int w = 0; w < displayedQuestions.size(); w++) {
+                currentQuestion = (QuestionData) displayedQuestions.elementAt(w);
+                for (int i = 0; i < qtns.size(); i++) {
+
+                    qd = (QuestionData) qtns.elementAt(i);
+                    System.out.println("Showing text=>" + qd.getText());
+                    System.out.println("Expected text=>" + currentQuestion.getText());
+                    if (qd.getId() == currentQuestion.getId()) {
+                        System.out.println("Setting answer hurra!=>" + currentQuestion.getTextAnswer());
+                        QuestionData tmp = new QuestionData((QuestionData) qtns.elementAt(i));
+                        tmp.setTextAnswer(currentQuestion.getTextAnswer());
+
+                        qtns.setElementAt(tmp, i);
+                        System.out.println("Set answer hurra!=>" + (((QuestionData) qtns.elementAt(i)).getTextAnswer()));
+                        //break;
+                    }
+
+
+                }
             }
-            
 
-        }
+            mypage.setQuestions(qtns);
+            pages.setElementAt(mypage, pageIndex);
+            
         }
         
-        mypage.setQuestions(qtns);
-        pages.setElementAt(mypage, 0);
         formData.setPages(pages);
 
     }
@@ -421,6 +445,7 @@ public class MvacController implements TransportLayerListener,ActionListener,Sto
         for (int i = 0; i < prefilledQns.size(); i++) {
             MQuestionMap qnMap        = (MQuestionMap) prefilledQns.elementAt(i);
             String       questionName = "/" + formName + "/" + qnMap.getQuestion();
+            System.out.println("WIR QUE->"+questionName +"-WITH param->"+qnMap.getParameter());
             QuestionData qnData       = formData.getQuestion(questionName);
 
             if(qnData.getId()==currentQuestion.getId()){
@@ -450,10 +475,15 @@ public class MvacController implements TransportLayerListener,ActionListener,Sto
 		formData.setDateValue("/"+this.formDef.getVariableName()+"/endtime", new Date());
                 System.out.println("MY Study ID=>"+getStudyFromForm(this.formDef).getId());
 		if (OpenXdataDataStorage.saveFormData(this.wir.getStudyId(),formData)) {
-                    System.out.println("Saved the damn form data");
+                    /**
+                     * TODO : Add prompt here 
+                     */
+                    System.out.println("Saved the damn form data :: Add prompt here ");
+                    if(savingListener != null) this.savingListener.dataSaved(true) ;
 
 		}else{
                     System.out.println("Failed to save the damn form data");
+                    if(savingListener != null) this.savingListener.dataSaved(false) ;
                 }
 	}
 
@@ -574,7 +604,7 @@ public class MvacController implements TransportLayerListener,ActionListener,Sto
     public boolean ifForDisplay(QuestionData qd){
         String text =  qd.getText();
         ///*||text.equalsIgnoreCase("Reason for not Immunizing")*/
-        if(text.equals("Lot Number")||text.equals("Date of Immunization") ||text.equals("Status")||text.equals("Notes")){
+        if(text.equals("Lot Number")||text.equals("Date of Immunization") ||text.equals("Status")||text.equals("Notes")||text.equals("Dose ID")){
             return true;
         }else{
             return false;
@@ -640,13 +670,21 @@ System.out.println("@ downloaded");
     }
 
     public void uploaded(Persistent dataOutParams, Persistent dataOut) {
-        ResponseHeader rh = (ResponseHeader) dataOutParams;
+        System.out.println("@ uploaded");
+        progress.dispose();
+        
+        if(dataOutParams!=null){
+            ResponseHeader rh = (ResponseHeader) dataOutParams;
         System.out.println("In upload=>"+rh.isSuccess());
                 if (rh.isSuccess()) {
                         WFStorage.deleteCompleteWorkItems(this, true);
                 }
+        }
         if (activatingView!=null) {
-            activatingView.resume(null);
+            System.out.println("In upload=>returning to view");
+            Hashtable args = new Hashtable();
+            args.put("msg", "success");
+            activatingView.resume(args);
 
         }
     }

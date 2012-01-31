@@ -19,16 +19,28 @@ import org.openxdata.workflow.mobile.model.MWorkItemList;
 import java.util.Vector;
 import org.openxdata.mvac.mobile.util.AppUtil;
 import org.openxdata.mvac.mobile.util.Constants;
+import org.openxdata.mvac.model.LotNumbers;
 
 public class WFStorage {
     public final static String WORK_ITEM_STORAGE = "workitem.storage";
+    public final static String LOT_NUMBER_STORAGE = "lotnumber.storage";
 
     private static String getWIRStorageName() {
         return WORK_ITEM_STORAGE + "." + (String)AppUtil.get().getItem(Constants.USERNAME);
     }
+    
+    private static String getLotStorageName() {
+        return LOT_NUMBER_STORAGE + "." + (String)AppUtil.get().getItem(Constants.USERNAME);
+    }
 
     private static Storage getWirStorage(StorageListener listener) {
         Storage storage = StorageFactory.getStorage(getWIRStorageName(), listener);
+
+        return storage;
+    }
+    
+    private static Storage getLotStorage(StorageListener listener) {
+        Storage storage = StorageFactory.getStorage(getLotStorageName(), listener);
 
         return storage;
     }
@@ -45,7 +57,14 @@ public class WFStorage {
             if ((workItemList == null) ||!workItemList.contains(wir)) {
                 storage.save(wir);
             }
+
+            wir = null;
         }
+
+        workItems = null;
+        workItemList = null;
+        itemList = null;        
+
     }
 
     public static void saveMWorkItem(MWorkItem wir, StorageListener listener) {
@@ -53,10 +72,57 @@ public class WFStorage {
 
         storage.save(wir);
     }
+    
+    public static void saveLotNumbers(LotNumbers lots, StorageListener listener) {
+        Storage storage = getLotStorage(listener);
+
+        storage.save(lots);
+        
+    }
+    
+    public static LotNumbers getLotNumbers(StorageListener listener) {
+        LotNumbers  lots= null;
+        Storage storage = getLotStorage(listener);
+        //Vector  vector  = storage.read(new MWorkItem().getClass());
+        System.out.println("Before reading lots..");
+        int numRecs= storage.getNumRecords();
+        
+        System.out.println("Number of Records in WF =>"+numRecs);
+        
+        if (numRecs>0) {
+            lots = (LotNumbers) storage.readFirst(LotNumbers.class);
+        }
+        
+        
+        
+        System.out.println("After reading lots..");
+        
+        if (lots!=null) {
+            //
+            System.out.println("Gotten Lots=> SO not Null"+lots.getLotNumbers());
+            
+            
+        }else{
+            System.out.println("Gotten Lots=>Which are null");
+            lots = new LotNumbers();
+            lots.setLotNumbers("Refresh to update...,");
+        }
+
+        return lots;
+    }
 
     public static Vector getMWorkItemList(StorageListener listener) {
+        
         Storage storage = getWirStorage(listener);
         Vector  vector  = storage.read(new MWorkItem().getClass());
+
+        return vector;
+    }
+    
+    public static Vector getSomeMWorkItemList(StorageListener listener) {
+        
+        Storage storage = getWirStorage(listener);
+        Vector  vector  = storage.readSome(new MWorkItem().getClass());
 
         return vector;
     }
@@ -75,7 +141,11 @@ public class WFStorage {
             StudyDef studyDef = (StudyDef) studies.elementAt(i);
 
             OpenXdataDataStorage.saveStudy(studyDef);
+
+            studyDef = null;
         }
+        studyDefList = null;
+        studies.removeAllElements(); studies = null;
 
         return userStudyList.totalForms();
     }
@@ -152,6 +222,27 @@ public class WFStorage {
 
         return wirWithData;
     }
+    
+    public static void deleteAllWorkItems(StorageListener listener, boolean inclueEmpty) {
+        Vector workItemList = getMWorkItemList(listener);
+        if(workItemList!=null){
+            int    size         = workItemList.size();
+
+            for (int i = 0; i < size; i++) {
+                MWorkItem wir = (MWorkItem) workItemList.elementAt(i);
+
+                //deleteWorkItem(wir, listener);
+                deleteFormDataForWir(wir, listener);
+
+            }
+
+            Storage storage = getWirStorage(listener);
+
+            storage.deleteStore();
+            
+        }
+        
+    }
 
     public static void deleteCompleteWorkItems(StorageListener listener, boolean inclueEmpty) {
         Vector workItemList = getMWorkItemList(listener);
@@ -184,6 +275,14 @@ public class WFStorage {
         Storage storage = getWirStorage(listener);
 
         storage.delete(wir);
+    }
+    
+    public static void deleteFormDataForWir(MWorkItem wir, StorageListener listener) {
+        if (wir.getDataRecId() != -1) {
+            OpenXdataDataStorage.deleteFormData(wir.getStudyId(), getFormData(wir, false));
+        }
+
+        
     }
 }
 

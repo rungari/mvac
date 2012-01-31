@@ -52,11 +52,12 @@ public class DateField extends TextField implements DataChangedListener, FocusLi
     public DateField(Date date, int dateFormat, char separator) {
         super();
         addDataChangeListener(this);
-        addFocusListener(this);
+//        addFocusListener(this);
         this.dateFormat = dateFormat;
         setDate(date);
         this.setInputMode("123");
         this.setInputModeOrder(new String[] {"123"});
+        this.setEditable(false);
         UIManager.getInstance().setLookAndFeel(new DateFieldLookAndFeel());
     }
 

@@ -18,6 +18,7 @@
         <property name="bluecove" value="../../core/bluetooth-client/lib/bluecove-2.1.0.jar"/>
         <property name="dbutils" value="../../core/dbutils/dist/dbutils.jar"/>
         <property name="lwuit" value="lib/LWUIT.jar"/>
+        <property name="kxml" value="lib/kxml2-2.3.0.jar"/>
         <property name="wfmobile" value="build/preverified-jar/wfmobile.jar"/>
 
 	
@@ -87,6 +88,7 @@
                                 <pathelement location="${wf.mobile.model}"/>
                                 <pathelement location="${cldc_lib}" />
                                 <pathelement location="${lwuit}" />
+                                <pathelement location="${kxml}" />
                          </classpath>
                 </javac>
         </target>
@@ -103,14 +105,26 @@
                                 <pathelement location="${openxdata}"/>
                                 <pathelement location="${dbutils}"/>
                                 <pathelement location="${lwuit}"/>
+                                <pathelement location="${kxml}" />
                         </bootclasspath>
                 </wtkpreverify>
         </target>
+        
+        <target name="preverivfy-external-kxml" >
+                <mkdir dir="build/preverified-kxml-jar"/>
+                <wtkpreverify jarfile="${kxml}" tojarfile="${kxmlMobile}">
+                    <bootclasspath>
+                                <pathelement location="${midp_lib}"/>
+                                <pathelement location="${cldc_lib}"/>
+                        </bootclasspath>
+                        
+                </wtkpreverify>
+        </target>
 
-        <target name="preverify" depends="clean, init, compile, preverivfy-external">
+        <target name="preverify" depends="clean, init, compile, preverivfy-external,preverivfy-external-kxml">
                 <mkdir dir="build/preverified"/>
                 <exec executable="${midp}/bin/preverify">
-                        <arg line=" -classpath ${midp_lib}${path.separator}${cldc_lib}${path.separator}${openxdata-midp}${path.separator}${dbutils}${path.separator}${openxdata}${path.separator}${midp-dbutils}${path.separator}${midp-mvc}${path.separator}${midp-utils}${path.separator}${transport-layer}${path.separator}${jzlib}${path.separator}${wf.mobile.model}${path.separator}${bluetooth-client}${path.separator}${lwuit}"/>
+                        <arg line=" -classpath ${midp_lib}${path.separator}${cldc_lib}${path.separator}${openxdata-midp}${path.separator}${dbutils}${path.separator}${openxdata}${path.separator}${midp-dbutils}${path.separator}${midp-mvc}${path.separator}${midp-utils}${path.separator}${transport-layer}${path.separator}${jzlib}${path.separator}${wf.mobile.model}${path.separator}${bluetooth-client}${path.separator}${lwuit}${path.separator}${kxml}"/>
                         <arg line="-d build/preverified"/>
                         <arg line="bin"/>
                 </exec>
@@ -126,9 +140,10 @@
                         <libraryjar file="${mmapi}" />
                         <libraryjar file="${bluecove}" />
                         <libraryjar file="${lwuit}" />
-                        <libraryjar file="/opt/WTK2.5.2/lib/jsr184.jar" />
-                        <libraryjar file="/opt/WTK2.5.2/lib/jsr75.jar" />
-                        <libraryjar file="/opt/WTK2.5.2/lib/jsr226.jar" />
+                        <libraryjar file="${kxmlMobile}" />
+                        <libraryjar file="/WTK2.5.2_01/lib/jsr184.jar" />
+                        <libraryjar file="/WTK2.5.2_01/lib/jsr75.jar" />
+                        <libraryjar file="/WTK2.5.2_01/lib/jsr226.jar" />
 
                         
                         -injars      dist/${packaged-jar}
@@ -144,7 +159,7 @@
                 <property name="dir-preverified-obf" value="build/obf/preverifiedobf"/>
                 <mkdir dir="${dir-preverified-obf}"/>
                 <exec executable="${midp}/bin/preverify">
-                        <arg line="-classpath ${midp_lib}${path.separator}${cldc_lib}${path.separator}${bluecove}${path.separator}${wf.mobile.model}${path.separator}${lwuit}"/>
+                        <arg line="-classpath ${midp_lib}${path.separator}${cldc_lib}${path.separator}${bluecove}${path.separator}${wf.mobile.model}${path.separator}${lwuit}${path.separator}${kxml}"/>
                         <arg line="-d ${dir-preverified-obf}"/>
                         <arg line="${dir-obf-extract}"/>
                 </exec>
@@ -176,6 +191,7 @@
                         <zipfileset src="${cldc_classes}"/>
                         <zipfileset src="${wfmobile}"/>
                         <zipfileset src="${lwuit}"/>
+                        <zipfileset src="${kxmlMobile}"/>
 
                 </jar>
 
@@ -231,7 +247,7 @@
         <target name="preverify-onlythisproject" >
                 <mkdir dir="build/preverified"/>
                 <exec executable="${midp}/bin/preverify">
-                        <arg line=" -classpath ${midp_lib}${path.separator}${cldc_lib}${path.separator}${openxdata-midp}${path.separator}${dbutils}${path.separator}${openxdata}${path.separator}${midp-dbutils}${path.separator}${midp-mvc}${path.separator}${midp-utils}${path.separator}${transport-layer}${path.separator}${jzlib}${path.separator}${wf.mobile.model}${path.separator}${bluetooth-client}${path.separator}${lwuit}"/>
+                        <arg line=" -classpath ${midp_lib}${path.separator}${cldc_lib}${path.separator}${openxdata-midp}${path.separator}${dbutils}${path.separator}${openxdata}${path.separator}${midp-dbutils}${path.separator}${midp-mvc}${path.separator}${midp-utils}${path.separator}${transport-layer}${path.separator}${jzlib}${path.separator}${wf.mobile.model}${path.separator}${bluetooth-client}${path.separator}${lwuit}${path.separator}${kxml}"/>
                         <arg line="-d build/preverified"/>
                         <arg line="bin"/>
                 </exec>

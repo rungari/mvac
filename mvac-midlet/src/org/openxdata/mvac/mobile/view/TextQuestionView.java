@@ -173,7 +173,7 @@ System.out.println("Today is :" + today);
             if(setAnswer()){
                 ((MvacController)AppUtil.get().getItem(Constants.CONTROLLER)).saveQtnData(questionObj);
             }
-            ((MvacController)AppUtil.get().getItem(Constants.CONTROLLER)).lastScreen();
+            //((MvacController)AppUtil.get().getItem(Constants.CONTROLLER)).lastScreen();
             
             
         }else if(cmd ==next){
