@@ -1,0 +1,13 @@
+K 10
+svn:ignore
+V 80
+.eclipseme.tmp
+.externalToolBuilders
+.settings
+bin
+build
+deployed
+dist
+.mtj.tmp
+
+END

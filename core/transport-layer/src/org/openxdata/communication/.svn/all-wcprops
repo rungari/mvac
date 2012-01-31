@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/svn/EpiHandy/!svn/ver/3548/J2ME/branches/wf-prototype/core/transport-layer/src/org/openxdata/communication
+END
+TransportLayerListener.java
+K 25
+svn:wc:ra_dav:version-url
+V 135
+/svn/EpiHandy/!svn/ver/3118/J2ME/branches/wf-prototype/core/transport-layer/src/org/openxdata/communication/TransportLayerListener.java
+END
+ConnectionParameter.java
+K 25
+svn:wc:ra_dav:version-url
+V 132
+/svn/EpiHandy/!svn/ver/3118/J2ME/branches/wf-prototype/core/transport-layer/src/org/openxdata/communication/ConnectionParameter.java
+END
+ConnectionSettings.java
+K 25
+svn:wc:ra_dav:version-url
+V 131
+/svn/EpiHandy/!svn/ver/3118/J2ME/branches/wf-prototype/core/transport-layer/src/org/openxdata/communication/ConnectionSettings.java
+END
+TransportConstants.java
+K 25
+svn:wc:ra_dav:version-url
+V 131
+/svn/EpiHandy/!svn/ver/3548/J2ME/branches/wf-prototype/core/transport-layer/src/org/openxdata/communication/TransportConstants.java
+END
+TransportLayer.java
+K 25
+svn:wc:ra_dav:version-url
+V 127
+/svn/EpiHandy/!svn/ver/3118/J2ME/branches/wf-prototype/core/transport-layer/src/org/openxdata/communication/TransportLayer.java
+END

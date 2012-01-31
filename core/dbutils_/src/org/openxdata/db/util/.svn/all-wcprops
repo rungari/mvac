@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/EpiHandy/!svn/ver/3118/J2ME/branches/wf-prototype/core/dbutils/src/org/openxdata/db/util
+END
+Persistent.java
+K 25
+svn:wc:ra_dav:version-url
+V 109
+/svn/EpiHandy/!svn/ver/3118/J2ME/branches/wf-prototype/core/dbutils/src/org/openxdata/db/util/Persistent.java
+END
+PersistentHelper.java
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/svn/EpiHandy/!svn/ver/3118/J2ME/branches/wf-prototype/core/dbutils/src/org/openxdata/db/util/PersistentHelper.java
+END
+AbstractRecord.java
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/svn/EpiHandy/!svn/ver/3118/J2ME/branches/wf-prototype/core/dbutils/src/org/openxdata/db/util/AbstractRecord.java
+END
+PersistentString.java
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/svn/EpiHandy/!svn/ver/3118/J2ME/branches/wf-prototype/core/dbutils/src/org/openxdata/db/util/PersistentString.java
+END
+Serializer.java
+K 25
+svn:wc:ra_dav:version-url
+V 109
+/svn/EpiHandy/!svn/ver/3118/J2ME/branches/wf-prototype/core/dbutils/src/org/openxdata/db/util/Serializer.java
+END
+PersistentInt.java
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/svn/EpiHandy/!svn/ver/3118/J2ME/branches/wf-prototype/core/dbutils/src/org/openxdata/db/util/PersistentInt.java
+END
+Record.java
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/EpiHandy/!svn/ver/3118/J2ME/branches/wf-prototype/core/dbutils/src/org/openxdata/db/util/Record.java
+END

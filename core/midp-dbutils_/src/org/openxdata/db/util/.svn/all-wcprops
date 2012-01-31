@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svn/EpiHandy/!svn/ver/3118/J2ME/branches/wf-prototype/core/midp-dbutils/src/org/openxdata/db/util
+END
+Settings.java
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/svn/EpiHandy/!svn/ver/3118/J2ME/branches/wf-prototype/core/midp-dbutils/src/org/openxdata/db/util/Settings.java
+END
+Storage.java
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/svn/EpiHandy/!svn/ver/3118/J2ME/branches/wf-prototype/core/midp-dbutils/src/org/openxdata/db/util/Storage.java
+END
+RMSStorage.java
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/svn/EpiHandy/!svn/ver/3118/J2ME/branches/wf-prototype/core/midp-dbutils/src/org/openxdata/db/util/RMSStorage.java
+END
+StorageListener.java
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/svn/EpiHandy/!svn/ver/3118/J2ME/branches/wf-prototype/core/midp-dbutils/src/org/openxdata/db/util/StorageListener.java
+END
+StorageFactory.java
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/svn/EpiHandy/!svn/ver/3118/J2ME/branches/wf-prototype/core/midp-dbutils/src/org/openxdata/db/util/StorageFactory.java
+END
