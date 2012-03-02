@@ -333,7 +333,7 @@ public class MvacTransportLayer implements Runnable, BluetoothClientListener, Al
         this.isDownload = isDownload;
         this.userName = userName;
         this.password = password;
-        this.nursename = nursename;
+        this.nursename = userName;
         this.progressMessage = progressMessage;
     }
 
@@ -397,7 +397,7 @@ public class MvacTransportLayer implements Runnable, BluetoothClientListener, Al
             dos.flush(); //if you dont do this, the client will block on a read.
             dos.close();
             dos = null; //Not setting to null results in KErrCouldNotConnect on the client.
-
+            
             readResponseData(dis);
 
         } catch (Exception e) {
@@ -435,9 +435,8 @@ public class MvacTransportLayer implements Runnable, BluetoothClientListener, Al
                 }finally{
                    dis.close();
                    dis = null;
-                }
-                
-                System.out.println("Read this stuff");
+                }                
+                System.out.println("<<<<<<<<<, Fi nished reading this stuff");
             }
             System.out.println("After Download=>" + this.isDownload);
             if (this.isDownload) {
@@ -502,7 +501,9 @@ public class MvacTransportLayer implements Runnable, BluetoothClientListener, Al
                         null);
             } else {
                 System.out.println("Reading Response Data..");
-                readResponseData(((HttpConnection) con).openDataInputStream());
+                DataInputStream resp = ((HttpConnection)con).openDataInputStream();
+                System.out.println(" Size of response data :" + resp.available()) ;                
+                readResponseData(resp);
             }
         } catch (SecurityException e) {
             this.eventListener.errorOccured(MenuText.DEVICE_PERMISSION_DENIED(), e);

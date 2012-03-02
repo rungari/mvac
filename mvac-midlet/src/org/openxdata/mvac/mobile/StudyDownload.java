@@ -3,12 +3,12 @@
  * and open the template in the editor.
  */
 
-package org.openxdata.mvac.mobile.util.controller;
+package org.openxdata.mvac.mobile;
 
 /**
  *
- * @author soyfactor
+ * @author mutahi
  */
-public class MvacRecordsUtility {
+public class StudyDownload {
 
 }

@@ -26,19 +26,16 @@ import javax.microedition.io.ConnectionNotFoundException;
 import org.openxdata.communication.TransportLayerListener;
 import org.openxdata.db.util.Persistent;
 import org.openxdata.db.util.StorageListener;
-import org.openxdata.model.QuestionData;
 import org.openxdata.model.ResponseHeader;
 import org.openxdata.model.UserListStudyDefList;
 import org.openxdata.mvac.communication.MvacTransportLayer;
 import org.openxdata.mvac.mobile.DownloadManager;
-import org.openxdata.mvac.mobile.Factory;
+import org.openxdata.mvac.mobile.WIRDownload;
 import org.openxdata.mvac.mobile.api.FormUtil;
-import org.openxdata.mvac.mobile.api.MvacController;
 import org.openxdata.mvac.mobile.db.WFStorage;
 import org.openxdata.mvac.mobile.util.AppUtil;
 import org.openxdata.mvac.mobile.util.Constants;
 import org.openxdata.mvac.mobile.util.NurseSettings;
-import org.openxdata.mvac.mobile.util.view.api.IDialogListener;
 import org.openxdata.mvac.mobile.util.view.api.IView;
 import org.openxdata.workflow.mobile.model.MWorkItem;
 import org.openxdata.workflow.mobile.model.MWorkItemList;
@@ -230,7 +227,7 @@ public class LWUITMainMenu extends Form implements ActionListener, IView, Transp
         transportlayer = null;
         transportlayer = new MvacTransportLayer();
 
-//        WFStorage.deleteAllWorkItems(this, true);
+//        WFStorage_old.deleteAllWorkItems(this, true);
 
 
 
@@ -269,11 +266,30 @@ public class LWUITMainMenu extends Form implements ActionListener, IView, Transp
             GroupList appList = new GroupList("Saved appointments");
             AppUtil.get().setView(appList);
 
-        } else {
-            System.out.println("inside other else");
+        }else if(dataOut instanceof WIRDownload){
+            System.out.println(" WIRDownload object received . About to process ");
+            WIRDownload wIRDownload = (WIRDownload)dataOut ;
+            System.out.println(" WIRDownload object :" + ((WIRDownload)dataOut).toString());
+            Vector wirSummary = wIRDownload.getWirSummaries();
+            if(wirSummary != null && wirSummary.size()>0){
+                System.out.println(" Number of workitem summaries :" + wirSummary.size());
+                dataOut = null;
+                wIRDownload = null;
+                wirSummary = null;
+                downloadAssociatedForm();
+            }else{
+                System.out.println(" WIR summary is null");
+            }
+            
+
+        }
+        else {
+            System.out.println("some other object returned ");
 
         }
     }
+
+
 
     private void saveAndDisplayWorkItems(MWorkItemList dataOut) {
         if (dataOut.getmWorkItems().isEmpty()) {
@@ -288,32 +304,28 @@ public class LWUITMainMenu extends Form implements ActionListener, IView, Transp
     }
 
     public void downloadAssociatedForm() {
-        Vector mWorkItemsList = new Vector(0);
-        System.out.println("Abt to check");
-        if (WFStorage.getSomeMWorkItemList(this) != null) {
-            mWorkItemsList = WFStorage.getSomeMWorkItemList(this);
 
-        } else {
-            mWorkItemsList = new Vector(0);
-        }
-        if (mWorkItemsList.size() > 0) {
-            MWorkItem wir = (MWorkItem) mWorkItemsList.elementAt(0);
-            FormUtil formutil = new FormUtil();
-            if (formutil.getFormDef(wir) == null) {
-                System.out.println("@ MainMenu : about to download assoc forms");
-                //System.gc();
-                downloadForm();
-
-                //return;
-            } else {
-                GroupList grpList = new GroupList("Saved appointments");
-                progress.dispose();
-
-                AppUtil.get().setView(grpList);
+        int storageSize = WFStorage.getWorkItemStorageSize(this);
+        if(storageSize > 0){
+            MWorkItem workItem = null;
+            try{
+                workItem = (MWorkItem)WFStorage.getWorkItem(1, this);
+            }catch(Exception e){
+                e.printStackTrace();
             }
-
+            if(workItem != null ){
+                FormUtil formUtil = new FormUtil();
+                if(formUtil.getFormDef(workItem) == null){
+                    System.out.println(" <<<<<<<<<<<<<<<<< About to download associated forms >>>>>>>>>>>");
+                    downloadForm();
+                }else{
+                    GroupList grpList = new GroupList("Saved appointments");
+                    progress.dispose();
+                    AppUtil.get().setView(grpList);
+                }
+            }
+            workItem = null;
         }
-
     }
 
     private void handleStudyAndUserDownloaded(UserListStudyDefList userListStudyDefList) {
@@ -328,10 +340,7 @@ public class LWUITMainMenu extends Form implements ActionListener, IView, Transp
         new BackgroundTask() {
 
             public void performTask() {
-
                 dwnLdMgr.downloadStudies(LWUITMainMenu.this);
-
-                //dwnLdMgr.uploadWorkItems(null);
             }
 
             public void taskStarted() {
@@ -354,7 +363,7 @@ public class LWUITMainMenu extends Form implements ActionListener, IView, Transp
 //                transportlayer = null;
 //                transportlayer = new MvacTransportLayer();
 //
-//                WFStorage.deleteAllWorkItems(this, true);
+//                WFStorage_old.deleteAllWorkItems(this, true);
 //
 //                System.out.println("In upload=>returning to view");
 //

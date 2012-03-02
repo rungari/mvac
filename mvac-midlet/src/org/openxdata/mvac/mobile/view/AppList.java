@@ -16,6 +16,7 @@ import com.sun.lwuit.events.ActionListener;
 import com.sun.lwuit.events.DataChangedListener;
 import com.sun.lwuit.events.FocusListener;
 import com.sun.lwuit.layouts.BorderLayout;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 import org.openxdata.db.util.StorageListener;
@@ -24,6 +25,7 @@ import org.openxdata.model.FormDef;
 import org.openxdata.model.PageData;
 import org.openxdata.model.QuestionData;
 import org.openxdata.mvac.mobile.api.FormUtil;
+import org.openxdata.mvac.mobile.db.WFStorage;
 import org.openxdata.mvac.mobile.util.AppUtil;
 import org.openxdata.mvac.mobile.util.view.api.IView;
 import org.openxdata.workflow.mobile.model.MQuestionMap;
@@ -63,7 +65,7 @@ public class AppList extends Form implements IView, StorageListener, ActionListe
     public AppList(AppointmentWrapper wrapper) {
         super(wrapper.getName());
         formutil = new FormUtil();
-        mWorkItemsList = wrapper.getWorkItems();
+        mWorkItemsList = getWorkItems(wrapper.getWorkItems());
         initView();
     }
 
@@ -287,5 +289,15 @@ public class AppList extends Form implements IView, StorageListener, ActionListe
             }
 
         }
+    }
+
+    private Vector getWorkItems(Vector ids){
+        Vector resp = new Vector();
+
+        for(Enumeration enumids = ids.elements() ; enumids.hasMoreElements();){
+            int index = Integer.parseInt(enumids.nextElement().toString());
+            resp.addElement(WFStorage.getWorkItem(index, this));
+        }
+        return resp ;
     }
 }

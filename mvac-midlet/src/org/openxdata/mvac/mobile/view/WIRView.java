@@ -65,7 +65,7 @@ public class WIRView implements AlertMessageListener {
     }
 
     ;
-    private void refresh() {
+    public void refresh() {
         listDisplay.deleteAll();
 
         for (int i = 0; i < workItems.size(); i++) {

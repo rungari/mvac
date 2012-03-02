@@ -21,6 +21,9 @@ import com.sun.lwuit.layouts.BorderLayout;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+import javax.microedition.rms.InvalidRecordIDException;
+import javax.microedition.rms.RecordEnumeration;
+import org.openxdata.db.util.Storage;
 import org.openxdata.db.util.StorageListener;
 import org.openxdata.mvac.mobile.db.WFStorage;
 import org.openxdata.mvac.mobile.util.AppUtil;
@@ -103,55 +106,66 @@ public class GroupList extends  Form implements IView,StorageListener,ActionList
     private void initItems() {
         refreshList();
 //        System.out.println("Almost looping work items");
-        for(int i=0;i<mWorkItemsList.size();i++){
-            AppointmentWrapper appwr = new AppointmentWrapper();
-            Appointment app =  new Appointment();
-            String myChild_id="";
 
-            MWorkItem wir = (MWorkItem)mWorkItemsList.elementAt(i);
-            app.setRecord_id(wir.getDataRecId());
+        /***
+         * TEST
+         */
+        
+        for(RecordEnumeration re = WFStorage.getWorkItemEnum() ; re.hasNextElement();){
+            AppointmentWrapper wrapper = new AppointmentWrapper(this);
+            Appointment appointment = new Appointment();
+            String child_id = "";
 
+            MWorkItem wir = null;
+            try{
+                wir = WFStorage.getWorkItem(re.nextRecordId(), this);
+                if(wir != null){
+                    appointment.setRecord_id(wir.getDataRecId());
 
-            Vector preFilledQns = wir.getPrefilledQns();
-            for (int k = 0; k < preFilledQns.size(); k++) {
-                MQuestionMap qnMap        = (MQuestionMap) preFilledQns.elementAt(k);
-                String       questionName = qnMap.getQuestion();
-                if (questionName.equals("child_name")) {
-                    appwr.setName(qnMap.getValue());
-                    app.setName(qnMap.getValue());
+                    Vector preFilledQns = wir.getPrefilledQns();
+                    for (int k = 0; k < preFilledQns.size(); k++) {
+                        MQuestionMap qnMap        = (MQuestionMap) preFilledQns.elementAt(k);
+                        String       questionName = qnMap.getQuestion();
+                        if (questionName.equals("child_name")) {
+                            wrapper.setName(qnMap.getValue());
+                            wrapper.setName(qnMap.getValue());
 
-                }else if(questionName.equals("caretaker_name")){
-                    appwr.setCaretaker(qnMap.getValue());
-                    app.setCaretaker(qnMap.getValue());
+                        }else if(questionName.equals("caretaker_name")){
+                            wrapper.setCaretaker(qnMap.getValue());
+                            wrapper.setCaretaker(qnMap.getValue());
 
-                }else if(questionName.equals("child_iis_id")){
-                    myChild_id=qnMap.getValue();
-                    app.setChild_id(qnMap.getValue());
-                }else if(questionName.equals("child_dob")){
-                    String dob = qnMap.getValue();
-                    if(dob.indexOf("T")>=0){
-                        dob = dob.substring(0, dob.indexOf("T"));
+                        }else if(questionName.equals("child_iis_id")){
+                            child_id=qnMap.getValue();
+                            appointment.setChild_id(qnMap.getValue());
+                        }else if(questionName.equals("child_dob")){
+                            String dob = qnMap.getValue();
+                            if(dob.indexOf("T")>=0){
+                                dob = dob.substring(0, dob.indexOf("T"));
+                            }
+                            wrapper.setChild_dob(dob);
+                        }else if(questionName.equals("caretaker_nid")){
+                            wrapper.setCaretaker_nid(qnMap.getValue());
+                        }
                     }
-                    appwr.setChild_dob(dob);
-                }else if(questionName.equals("caretaker_nid")){
-                    appwr.setCaretaker_nid(qnMap.getValue());
-                }
-            }
 
-            if(appGroups.containsKey(myChild_id)){
-                ((AppointmentWrapper)appGroups.get(myChild_id)).addElement(app);
-                ((AppointmentWrapper)appGroups.get(myChild_id)).addWorkItem(wir);
-//                System.out.println("Adding existing");
+                     if(appGroups.containsKey(child_id)){
+                        ((AppointmentWrapper)appGroups.get(child_id)).addElement(appointment);
+                        ((AppointmentWrapper)appGroups.get(child_id)).addWorkItemID(wir.getRecordId());
+//                          System.out.println("Adding existing");
 
 
-            }else{
-                appwr.addElement(app);
-                appGroups.put(myChild_id, appwr);
-                ((AppointmentWrapper)appGroups.get(myChild_id)).addWorkItem(wir);
+                    }else{
+                        wrapper.addElement(appointment);
+                        appGroups.put(child_id, wrapper);
+                        ((AppointmentWrapper)appGroups.get(child_id)).addWorkItemID(wir.getRecordId());
 //                System.out.println("Adding New");
             }
-        }
 
+                }
+            }catch(InvalidRecordIDException exception){
+                System.out.println(" ERROR . Exception thrown when fetching item from store ." + exception.getMessage());
+            }
+        }
 
         apps = new AppointmentWrapper[appGroups.size()];
 
@@ -161,28 +175,34 @@ public class GroupList extends  Form implements IView,StorageListener,ActionList
         while(e.hasMoreElements()){
             String me= e.nextElement().toString();
             AppointmentWrapper wrapper = (AppointmentWrapper)appGroups.get(me);
-            wrapper.sort();
+//            wrapper.sort();
             apps[count]=wrapper ;
             wrapper = null;
-//            System.out.println("My KEY=>"+me);
             count++;
 
         }
+
+        /**
+         * END OF TEST
+         */
+
+
 
 
     }
 
     private void refreshList() {
         //Vector items = new Vector(0);
-        //items= WFStorage.getMWorkItemList(this);
+        //items= WFStorage_old.getMWorkItemList(this);
         //System.out.println("after items"+items);
 //        System.out.println("Abt to check");
-        if(WFStorage.getSomeMWorkItemList(this) !=null){
-            mWorkItemsList=WFStorage.getMWorkItemList(this);
-
-        }else{
-            mWorkItemsList= new Vector(0);
-        }
+//        if(WFStorage.getSomeMWorkItemList(this) !=null){
+//            mWorkItemsList=WFStorage.getMWorkItemList(this);
+//
+//        }else{
+//            mWorkItemsList= new Vector(0);
+//        }
+        mWorkItemsList = new Vector();
 //        System.out.println("Size of my objects =>"+mWorkItemsList.size());
     }
 

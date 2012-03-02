@@ -38,8 +38,11 @@ public class DownloadManager implements StorageListener {
     public void downloadWorkItems(TransportLayerListener tlListener) throws Error{
         setCommunicationParams();
 
+
+
         WFRequest      req                = getRequest("IISWIRDownload", null);
-        MWorkItemList  workItemsToReceive = new MWorkItemList();
+        WIRDownload workItemsToReceive = new WIRDownload();
+//        MWorkItemList  workItemsToReceive = new MWorkItemList();
         Persistent     localData          = null;
         ResponseHeader rh                 = new ResponseHeader();
         System.out.println("tlayerDownload");

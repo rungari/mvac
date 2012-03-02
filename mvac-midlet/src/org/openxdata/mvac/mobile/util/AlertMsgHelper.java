@@ -9,6 +9,7 @@ import org.openxdata.util.AlertMessage;
 import javax.microedition.lcdui.AlertType;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
+import org.openxdata.util.AlertMessageListener;
 
 public class AlertMsgHelper {
     public static void showMsg(Display display, Displayable disp, String errorMessage) {
@@ -33,6 +34,13 @@ public class AlertMsgHelper {
 
         return msg;
     }
+
+    public static void showConfirm(Display display, Displayable currDisplayable, String errorMessage, AlertMessageListener listener) {
+//                AlertMessage alertMessage = getAlertMessage(display, currDisplayable, listener);
+//                alertMessage.setTitle("Confirm");
+//                alertMessage.showConfirm(errorMessage);
+//                System.gc();
+        }
 }
 
 
