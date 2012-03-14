@@ -15,6 +15,7 @@ import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
 import com.sun.lwuit.layouts.BorderLayout;
 import com.sun.lwuit.layouts.BoxLayout;
+import com.sun.lwuit.plaf.Border;
 import java.util.Hashtable;
 import javax.microedition.io.ConnectionNotFoundException;
 import javax.microedition.midlet.MIDlet;
@@ -54,6 +55,7 @@ public class LWUITLoginForm extends Form implements IView,IDialogListener,Action
 
     public LWUITLoginForm(String title) {
         super(title);
+        super.getTitleComponent().setAlignment(LEFT);
         initView();
     }
 
@@ -62,8 +64,6 @@ public class LWUITLoginForm extends Form implements IView,IDialogListener,Action
     }
 
     public void resume(Hashtable args) {
-        //process args
-        //set next displayable
         
         AppUtil.get().setView(this);
     }
@@ -84,6 +84,7 @@ public class LWUITLoginForm extends Form implements IView,IDialogListener,Action
 
         txtUsername.setConstraint(TextField.ANY);
         txtUsername.setInputMode(Constants.INPUT_LOWERCASE);
+        
 
         txtPassword = new TextField();
         txtPassword.setConstraint(TextField.PASSWORD);
@@ -199,6 +200,7 @@ public class LWUITLoginForm extends Form implements IView,IDialogListener,Action
     }
 
     public void messageSent(Object args) {
+        System.out.println(" Response form server :" + args.toString());
         tm.closeConnections();
         String response = (String)args;
         if (response.equals("200")) {

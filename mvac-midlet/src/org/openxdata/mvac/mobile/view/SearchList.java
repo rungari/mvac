@@ -5,6 +5,7 @@
 
 package org.openxdata.mvac.mobile.view;
 
+import org.openxdata.mvac.mobile.model.listmodel.SearchFilterProxyListModel;
 import com.sun.lwuit.Command;
 import com.sun.lwuit.Component;
 import com.sun.lwuit.Dialog;
@@ -52,7 +53,7 @@ public class SearchList extends Form implements FocusListener , StorageListener,
 
     public SearchList(Vector results) {
         super("Search Results");
-        
+        super.getTitleComponent().setAlignment(LEFT);
         transportlayer = new MvacTransportLayer();
         dwnLdMgr = new DownloadManager(transportlayer);
         progress = new FBProgressIndicator(this, "Downloading..");
@@ -192,12 +193,11 @@ public class SearchList extends Form implements FocusListener , StorageListener,
         if (dataOut.getmWorkItems().isEmpty()) {
             //view.showMsg("No WorkItems Available");
             System.out.println("inside is empty");
-            GroupList appList = new GroupList("Saved appointments");
-            AppUtil.get().setView(appList);
+            
+            AppUtil.get().setView(new GroupList());
         }
         WFStorage.saveMWorkItemList(dataOut, this);
-        GroupList appList = new GroupList("Saved appointments");
-        AppUtil.get().setView(appList);
+        AppUtil.get().setView(new GroupList());
 
     }
 

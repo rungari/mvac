@@ -5,6 +5,8 @@
 
 package org.openxdata.mvac.mobile.view;
 
+import org.openxdata.mvac.mobile.model.listmodel.QuestionListModel;
+import org.openxdata.mvac.mobile.model.listmodel.QuestionFilterProxyListModel;
 import com.sun.lwuit.Command;
 import com.sun.lwuit.Dialog;
 import com.sun.lwuit.Font;

@@ -289,11 +289,8 @@ public class MvacTransportLayer implements Runnable, BluetoothClientListener, Al
         if (thread != null) {
             thread = null;
         }
-        System.out.println("abt save Download");
         saveParameters(dataInParams, dataIn, dataOutParams, dataOut, eventListener, true, userName, password, progressMessage);
-        System.out.println("saved Download");
         thread = new Thread(this);
-        System.out.println("start thread Download");
         thread.start();
 
         //handleRequest();
@@ -417,17 +414,14 @@ public class MvacTransportLayer implements Runnable, BluetoothClientListener, Al
     }
 
     private void readResponseData(DataInputStream dis) throws Exception {
-        System.out.println("Reading response...");
         dis = getDecompressedStream(dis);
 
         dataOutParams.read(dis); //This should never be null
 
         byte status = ((ResponseHeader) dataOutParams).getStatus();
 
-        System.out.println("My Status Response Header..." + status);
         if (status == ResponseHeader.STATUS_SUCCESS) {
             if (dataOut != null) { //FO cases where we are not getting any data back.
-                System.out.println(" <<<<<<<<<<<<<<<<<<<< About to start reading response >>>>>>>>>>>>>>>>>>>>>>");
                 try{
                     dataOut.read(dis); //When the out param shows failure status, this can be null hence throwing EOF exceptions.
                 }catch(Throwable t){
@@ -435,10 +429,8 @@ public class MvacTransportLayer implements Runnable, BluetoothClientListener, Al
                 }finally{
                    dis.close();
                    dis = null;
-                }                
-                System.out.println("<<<<<<<<<, Fi nished reading this stuff");
+                }
             }
-            System.out.println("After Download=>" + this.isDownload);
             if (this.isDownload) {
                 this.eventListener.downloaded(dataOutParams, dataOut);
             } else {
@@ -472,17 +464,13 @@ public class MvacTransportLayer implements Runnable, BluetoothClientListener, Al
 
             dos = ((HttpConnection) con).openDataOutputStream();
 
-            if (dos != null) {
-                System.out.println("dos is not NULLY");
-            }
+            
 
             if (dataInParams != null) {
-                System.out.println("Writing Data in");
                 dataInParams.write(dos);
             }
 
             if (dataIn != null) {
-                System.out.println("Writing Data out");
                 dataIn.write(dos);
 
             }
@@ -491,7 +479,6 @@ public class MvacTransportLayer implements Runnable, BluetoothClientListener, Al
 
             //con.
             int status = ((HttpConnection) con).getResponseCode();
-            System.out.println("My Status HTTP Con=>" + status);
             if (status != HttpConnection.HTTP_OK) {
                 System.out.println("My Connection Failed=>" + MenuText.RESPONSE_CODE_FAIL() + status + ". " +
                         MenuText.SERVER_INVALID_URL());
@@ -500,9 +487,7 @@ public class MvacTransportLayer implements Runnable, BluetoothClientListener, Al
                         MenuText.SERVER_INVALID_URL(),
                         null);
             } else {
-                System.out.println("Reading Response Data..");
-                DataInputStream resp = ((HttpConnection)con).openDataInputStream();
-                System.out.println(" Size of response data :" + resp.available()) ;                
+                DataInputStream resp = ((HttpConnection)con).openDataInputStream();                
                 readResponseData(resp);
             }
         } catch (SecurityException e) {

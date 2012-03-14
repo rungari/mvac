@@ -8,12 +8,8 @@ import org.openxdata.forms.FormManager;
 import org.openxdata.forms.UserManager;
 import org.openxdata.mvac.mobile.command.ActionDispatcher;
 import org.openxdata.mvac.mobile.presenter.FormPresenter;
-import org.openxdata.mvac.mobile.presenter.MVACChildSearchPresenter;
-import org.openxdata.mvac.mobile.presenter.MVACMenuPresenter;
-import org.openxdata.mvac.mobile.presenter.MVACQueryPresenter;
 import org.openxdata.mvac.mobile.presenter.WIRInfoPresenter;
 import org.openxdata.mvac.mobile.presenter.WIRPresenter;
-import org.openxdata.mvac.mobile.view.MVACMainMenu;
 import org.openxdata.mvac.mobile.view.MVACQuery;
 import org.openxdata.mvac.mobile.view.MVACSearch;
 import org.openxdata.mvac.mobile.view.WIRInfoView;
@@ -31,12 +27,8 @@ public class Factory {
     private static FormPresenter            formPresenter;
     private static WIRInfoPresenter         infoPresenter;
     private static WIRInfoView              infoView;
-    private static MVACChildSearchPresenter mVACChildSearchPresenter;
-    private static MVACMainMenu             mVACMainMenu;
     private static MVACQuery                mVACQuery;
-    private static MVACQueryPresenter       mVACQueryPresenter;
     private static MVACSearch               mVACSearch;
-    private static MVACMenuPresenter        menuPresenter;
     private static TransportLayer           tLayer;
     private static UserManager              userMgr;
     //private static WFMainForm               wfMainForm;
@@ -139,13 +131,7 @@ public class Factory {
         return wirPresenter;
     }
 
-    public static MVACMenuPresenter getMVACMenuPresenter() {
-        if (menuPresenter == null) {
-            menuPresenter = new MVACMenuPresenter(display, getmVACMainMenu(), commandDispatcher);
-        }
-
-        return menuPresenter;
-    }
+    
 
     public static FormPresenter getFormPresenter() {
         if (formPresenter == null) {
@@ -163,23 +149,6 @@ public class Factory {
         return infoPresenter;
     }
 
-    public static MVACQueryPresenter getmvacQueryPresenter() {
-        if (mVACQueryPresenter == null) {
-            mVACQueryPresenter = new MVACQueryPresenter(getmvacQuery(), getDldMgr(), getWirView(), getDisplay(),
-                    commandDispatcher);
-        }
-
-        return mVACQueryPresenter;
-    }
-
-    public static MVACChildSearchPresenter getChildSearchPresenter() {
-        if (mVACChildSearchPresenter == null) {
-            mVACChildSearchPresenter = new MVACChildSearchPresenter(display, getmvacSearch(), commandDispatcher);
-        }
-
-        return mVACChildSearchPresenter;
-    }
-
     public static WIRInfoView getWirInfoView() {
         if (infoView == null) {
             infoView = new WIRInfoView(getDisplay());
@@ -188,13 +157,7 @@ public class Factory {
         return infoView;
     }
 
-    public static MVACMainMenu getmVACMainMenu() {
-        if (mVACMainMenu == null) {
-            mVACMainMenu = new MVACMainMenu(display);
-        }
-
-        return mVACMainMenu;
-    }
+    
 
     public static MVACQuery getmvacQuery() {
         if (mVACQuery == null) {
@@ -230,7 +193,6 @@ public class Factory {
         userMgr       = null;
         display       = null;
         wirView       = null;
-        mVACMainMenu  = null;
     }
 
     public static void destroy() {

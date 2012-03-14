@@ -9,11 +9,7 @@ import com.sun.lwuit.Button;
 import com.sun.lwuit.Command;
 import com.sun.lwuit.Container;
 import com.sun.lwuit.Dialog;
-import com.sun.lwuit.Display;
-import com.sun.lwuit.Font;
 import com.sun.lwuit.Form;
-import com.sun.lwuit.Image;
-import com.sun.lwuit.Label;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
 import com.sun.lwuit.layouts.BorderLayout;
@@ -58,10 +54,11 @@ public class LWUITMainMenu extends Form implements ActionListener, IView, Transp
     private DownloadManager dwnLdMgr;
     private Command cmdLogout = null;
     private AppointmentsDownloadDialog downloadDialog = null;
-    private Style selcStyle = new Style(0xffffff, 0x69b510, Font.getBitmapFont("NokiaSansWide14Bold"), (byte) 255);
+    
 
     public LWUITMainMenu() {
         super("Main Menu");
+        super.getTitleComponent().setAlignment(LEFT);
         transportlayer = new MvacTransportLayer();
         dwnLdMgr = new DownloadManager(transportlayer);
         progress = new FBProgressIndicator(this, "Downloading workitems..");
@@ -80,19 +77,16 @@ public class LWUITMainMenu extends Form implements ActionListener, IView, Transp
         cmdAppointments = new Command("Open Appointments");
         cmdSearch = new Command("Search");
 
-        btnAppointments = new Button(cmdAppointments);
-
-//        Style selc = new Style(0xffffff, 0x69b510, Font.getBitmapFont("NokiaSansWide14Bold"), (byte)255);
-        btnAppointments.setSelectedStyle(new Style(0xffffff, 0x69b510, Font.getBitmapFont("NokiaSansWide14Bold"), (byte) 255));
+        btnAppointments = new Button(cmdAppointments);        
         btnAppointments.addActionListener(this);
-        btnDownload = new Button(cmdDownload);
-        btnDownload.setSelectedStyle(new Style(0xffffff, 0x69b510, Font.getBitmapFont("NokiaSansWide14Bold"), (byte) 255));
+        
+
+
+        btnDownload = new Button(cmdDownload);        
         btnDownload.addActionListener(this);
 
-        btnSearch = new Button(cmdSearch);
-        btnSearch.setSelectedStyle(new Style(0xffffff, 0x69b510, Font.getBitmapFont("NokiaSansWide14Bold"), (byte) 255));
+        btnSearch = new Button(cmdSearch);        
         btnSearch.addActionListener(this);
-
 
         container.addComponent(btnDownload);
         container.addComponent(btnAppointments);
@@ -121,9 +115,8 @@ public class LWUITMainMenu extends Form implements ActionListener, IView, Transp
 
 
         } else if (ae.getCommand() == cmdAppointments) {
-//            System.out.println("Appointments");
-            GroupList appList = new GroupList("Saved appointments");
-            AppUtil.get().setView(appList);
+            System.out.println("Appointments");
+            AppUtil.get().setView(new GroupList());
 
         } else if (ae.getCommand() == cmdSearch) {
             System.out.println("Search");
@@ -137,12 +130,7 @@ public class LWUITMainMenu extends Form implements ActionListener, IView, Transp
         } else if (ae.getSource() == cmdLogout) {
             LWUITLoginForm loginForm = new LWUITLoginForm("User Login");
             AppUtil.get().setView(loginForm);
-        }
-//            else if(ae.getCommand()==cmdUpload){
-//            ((MvacController)AppUtil.get().getItem(Constants.CONTROLLER)).uploadData(this);
-//            //this.resume(null);
-//
-//        }
+        } 
     }
 
     private void download() {
@@ -150,12 +138,12 @@ public class LWUITMainMenu extends Form implements ActionListener, IView, Transp
         progress = new FBProgressIndicator(this, "Downloading Items.. Please wait...");
         progress.showModeless();
 
-        System.out.println("<<<<<<<<<My download task is abt to started>>>>>>>>>>>>>>>>>>>");
+        
         new BackgroundTask() {
 
             public void performTask() {
                 try {
-                    System.out.println(">>>>>>>>>>>>My download task is abt to started");
+                    
                     dwnLdMgr.downloadWorkItems(LWUITMainMenu.this);
                 } catch (Error error) {
                     System.out.println("Error . Failed to download workitems ." + error.toString());
@@ -197,25 +185,7 @@ public class LWUITMainMenu extends Form implements ActionListener, IView, Transp
 
     }
 
-//    protected void onShowCompleted() {
-//        super.onShowCompleted();
-//        System.gc();
-//        transportlayer = null;
-//        transportlayer = new MvacTransportLayer();
-//        if(args!=null){
-//            if(args.containsKey("msg")){
-//                String msg = (String)args.get("msg");
-//                if(msg.equals("success")){
-//                    downloadDialog = new AppointmentsDownloadDialog(this);
-//                    downloadDialog.show();
-//                }
-//                
-//            }
-//            
-//                    
-//        }
-//        
-//    }
+
     public void uploaded(Persistent dataOutParams, Persistent dataOut) {
 
         System.out.println("@ uploaded");
@@ -226,8 +196,6 @@ public class LWUITMainMenu extends Form implements ActionListener, IView, Transp
 
         transportlayer = null;
         transportlayer = new MvacTransportLayer();
-
-//        WFStorage_old.deleteAllWorkItems(this, true);
 
 
 
@@ -241,13 +209,11 @@ public class LWUITMainMenu extends Form implements ActionListener, IView, Transp
 
         transportlayer = null;
         transportlayer = new MvacTransportLayer();
-        System.out.println("inside downloaded");
         ResponseHeader rh = (ResponseHeader) dataOutParams;
         if (!rh.isSuccess()) {
             System.out.println("inside !issuccess");
             return;
         } else if (dataOut instanceof MWorkItemList) {
-            System.out.println("inside instance of");
             try{
                 saveAndDisplayWorkItems((MWorkItemList) dataOut);
             }catch(Exception e){
@@ -263,22 +229,17 @@ public class LWUITMainMenu extends Form implements ActionListener, IView, Transp
             }
             
             dataOut = null;
-            GroupList appList = new GroupList("Saved appointments");
-            AppUtil.get().setView(appList);
+            AppUtil.get().setView(new GroupList());
 
         }else if(dataOut instanceof WIRDownload){
             System.out.println(" WIRDownload object received . About to process ");
             WIRDownload wIRDownload = (WIRDownload)dataOut ;
-            System.out.println(" WIRDownload object :" + ((WIRDownload)dataOut).toString());
             Vector wirSummary = wIRDownload.getWirSummaries();
             if(wirSummary != null && wirSummary.size()>0){
-                System.out.println(" Number of workitem summaries :" + wirSummary.size());
                 dataOut = null;
                 wIRDownload = null;
                 wirSummary = null;
                 downloadAssociatedForm();
-            }else{
-                System.out.println(" WIR summary is null");
             }
             
 
@@ -295,8 +256,8 @@ public class LWUITMainMenu extends Form implements ActionListener, IView, Transp
         if (dataOut.getmWorkItems().isEmpty()) {
             //view.showMsg("No WorkItems Available");
             System.out.println("inside is empty");
-            GroupList appList = new GroupList("Saved appointments");
-            AppUtil.get().setView(appList);
+            
+            AppUtil.get().setView(new GroupList());
         }
         WFStorage.saveMWorkItemList(dataOut, this);
         dataOut = null;
@@ -319,9 +280,8 @@ public class LWUITMainMenu extends Form implements ActionListener, IView, Transp
                     System.out.println(" <<<<<<<<<<<<<<<<< About to download associated forms >>>>>>>>>>>");
                     downloadForm();
                 }else{
-                    GroupList grpList = new GroupList("Saved appointments");
                     progress.dispose();
-                    AppUtil.get().setView(grpList);
+                    AppUtil.get().setView(new GroupList());
                 }
             }
             workItem = null;
@@ -396,24 +356,6 @@ public class LWUITMainMenu extends Form implements ActionListener, IView, Transp
     }
 
     public void dialogReturned(Dialog dialog, boolean yesNo) {
-//        AppUtil.get().setView(this);
-//        Object object = null;
-//        try{
-//            object = AppUtil.get().getItem(Constants.NURSENAME);
-//            if(object != null && object.toString().length()>0 && (!object.toString().equals(""))){
-//                if (yesNo) {
-//                   // download();
-////                    uploadCompletedItems();
-//                }
-//            }else{
-//                NurseSettings nurseSettings = new NurseSettings();
-//                AppUtil.get().setView(nurseSettings);
-//            }
-//        }catch(Exception e){
-//System.out.println("Exception thrown when fetching nurse name :" + e.getMessage());
-//            NurseSettings settings = new NurseSettings();
-//            AppUtil.get().setView(settings);
-//        }
     }
 
     public void uploadCompletedItems() {

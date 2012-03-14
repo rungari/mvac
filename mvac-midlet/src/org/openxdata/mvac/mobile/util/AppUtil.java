@@ -7,6 +7,7 @@ package org.openxdata.mvac.mobile.util;
 
 import com.sun.lwuit.Font;
 import com.sun.lwuit.plaf.Style;
+import com.sun.lwuit.util.Resources;
 import java.util.Hashtable;
 import javax.microedition.lcdui.Display;
 import javax.microedition.midlet.MIDlet;
@@ -25,27 +26,18 @@ public class AppUtil {
     private static IDisplay display;
     static Style selc = null;
 
-    private AppUtil(){
-        
-
-        
-        
+    private AppUtil(){        
     }
 
     public static void init(MIDlet parent){
-        System.out.println("init");
         get().putItem(Constants.MIDLET, parent);
-        System.out.println("init");
         get().putItem(Constants.MIDP_DISPLAY, Display.getDisplay(parent));
-        System.out.println("init");
         get().putItem(Constants.CONTROLLER, new MvacController());
-        System.out.println("init");
-
 
         //change this to appropriate display object. e.g for LWUIT specific stuff LWUITDisplay or MIDP specific stuff
         display=new LWUITDisplay(parent);
-
     }
+
 
     public static AppUtil get(){
         if (instance!=null) {
@@ -67,18 +59,35 @@ public class AppUtil {
     }
 
     public void setView(IView view){
-
         display.setView(view);
-
     }
 
-    public Style getMVACSelectStyle() {
-//        if(!(selc != null) ){
-        if(selc == null){
-            selc=new Style(0xffffff, 0x69b510, Font.getBitmapFont("NokiaSansWide14Bold"), (byte)255);
-        
+    public static Style getSelectStyle() {
+        byte tr = (byte)255 ;
+        Style selectedStyle = new Style(0x000000, 0x7AE969, Font.getDefaultFont(),tr);
+        return selectedStyle ;
+    }
+
+    public static Style getunselectStyle() {
+        byte tr = (byte)255 ;
+        Style selectedStyle = new Style(0x000000, 0x000000, Font.getDefaultFont(),tr);
+        return selectedStyle ;
+    }
+
+    public static  Resources getResources(){
+        if(display instanceof LWUITDisplay){
+            return ((LWUITDisplay)display).getResources();
+        }else{
+            return null;
         }
-        return selc;
+    }
+
+    public static Resources getFontResources(){
+        if(display instanceof LWUITDisplay){
+            return ((LWUITDisplay)display).getFontResources();
+        }else{
+            return null;
+        }
     }
     
     

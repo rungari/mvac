@@ -10,7 +10,6 @@ import com.sun.lwuit.Container;
 import com.sun.lwuit.Dialog;
 import com.sun.lwuit.Display;
 //import com.sun.lwuit.Font;
-import com.sun.lwuit.Font;
 import com.sun.lwuit.Form;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.TextField;
@@ -19,7 +18,6 @@ import com.sun.lwuit.events.ActionListener;
 import com.sun.lwuit.layouts.BorderLayout;
 import com.sun.lwuit.layouts.BoxLayout;
 import com.sun.lwuit.plaf.Border;
-import com.sun.lwuit.plaf.Style;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -86,6 +84,7 @@ public class LWUITSearchForm extends Form implements IView, StorageListener, Tra
 
     public LWUITSearchForm() {
         super("Search Child");
+        super.getTitleComponent().setAlignment(LEFT);
         tm = new TransportManager("GET", this);
         initSearchForm();
 
@@ -116,12 +115,12 @@ public class LWUITSearchForm extends Form implements IView, StorageListener, Tra
 
         btnFrom = new Button(cmdFrom);
         btnFrom.setAlignment(CENTER);
-        btnFrom.setSelectedStyle(new Style(0xffffff, 0x69b510, Font.getBitmapFont("NokiaSansWide14Bold"), (byte)255));
+        
         btnFrom.getStyle().setBorder(Border.createBevelRaised());
         btnFrom.setWidth(20);
         btnTo = new Button(cmdTo);
         btnTo.setAlignment(CENTER);
-        btnTo.setSelectedStyle(new Style(0xffffff, 0x69b510, Font.getBitmapFont("NokiaSansWide14Bold"), (byte)255));
+        
         btnTo.getStyle().setBorder(Border.createBevelRaised());
         btnTo.setWidth(20);
 
@@ -265,12 +264,11 @@ public class LWUITSearchForm extends Form implements IView, StorageListener, Tra
         if (dataOut.getmWorkItems().isEmpty()) {
             //view.showMsg("No WorkItems Available");
             System.out.println("inside is empty");
-            GroupList appList = new GroupList("Saved appointments");
-            AppUtil.get().setView(appList);
+            
+            AppUtil.get().setView(new GroupList());
         }
         WFStorage.saveMWorkItemList(dataOut, this);
-        GroupList appList = new GroupList("Saved appointments");
-        AppUtil.get().setView(appList);
+        AppUtil.get().setView(new GroupList());
 
     }
 

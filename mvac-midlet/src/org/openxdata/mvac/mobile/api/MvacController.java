@@ -74,9 +74,7 @@ public class MvacController implements TransportLayerListener,ActionListener,Sto
     private SavingListener savingListener = null;
 
     public MvacController() {
-        System.out.println("init view fac");
         viewFactory = new ViewFactory();
-        System.out.println("init form util");
         formutil = new FormUtil();
         transportlayer = new MvacTransportLayer();
         dwnLdMgr = new DownloadManager(transportlayer);

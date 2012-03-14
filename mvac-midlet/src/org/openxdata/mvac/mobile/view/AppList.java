@@ -4,10 +4,17 @@
  */
 package org.openxdata.mvac.mobile.view;
 
+import java.io.IOException;
+import org.openxdata.mvac.mobile.model.listmodel.FilterProxyListModel;
+import org.openxdata.mvac.mobile.model.AppointmentWrapper;
+import org.openxdata.mvac.mobile.model.Appointment;
+import org.openxdata.mvac.mobile.model.listmodel.AppListModel;
 import com.sun.lwuit.Command;
 import com.sun.lwuit.Component;
+import com.sun.lwuit.Container;
 import com.sun.lwuit.Dialog;
 import com.sun.lwuit.Form;
+import com.sun.lwuit.Image;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.List;
 import com.sun.lwuit.TextField;
@@ -16,6 +23,8 @@ import com.sun.lwuit.events.ActionListener;
 import com.sun.lwuit.events.DataChangedListener;
 import com.sun.lwuit.events.FocusListener;
 import com.sun.lwuit.layouts.BorderLayout;
+import com.sun.lwuit.layouts.BoxLayout;
+import com.sun.lwuit.plaf.Border;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -28,6 +37,7 @@ import org.openxdata.mvac.mobile.api.FormUtil;
 import org.openxdata.mvac.mobile.db.WFStorage;
 import org.openxdata.mvac.mobile.util.AppUtil;
 import org.openxdata.mvac.mobile.util.view.api.IView;
+import org.openxdata.mvac.mobile.view.renderers.AppointmentListCellRenderer;
 import org.openxdata.workflow.mobile.model.MQuestionMap;
 import org.openxdata.workflow.mobile.model.MWorkItem;
 
@@ -39,31 +49,28 @@ public class AppList extends Form implements IView, StorageListener, ActionListe
 
     private Appointment[] apps;
     private List list;
-    private TextField field = new TextField("Click here to search", 22);
-//    private Font lblFont = Font.getBitmapFont("mvaccalibri13");
-    private Label searchlbl = new Label("Search:");
+    private TextField field = null;
+    private Label searchlbl = null;
     private Vector mWorkItemsList = new Vector(0);
     private Command uploadselected;
     private Command uploadall;
     private FormUtil formutil;
     private FormDef formDef;
     private FormData formData;
-    private int currentPageIndex;
-    private int currentQuestionIndex;
-    private QuestionData currentQuestion;
-    private Vector displayedQuestions;
-    private boolean dirty;
     private PageData currentPage;
-
+    private Container searchCont = null;
+    private Image searchIcon = null;
+    private FilterProxyListModel proxyModel = null;
 
     public AppList(String title) {
         super(title);
-
+        super.getTitleComponent().setAlignment(LEFT);
         initView();
     }
 
     public AppList(AppointmentWrapper wrapper) {
         super(wrapper.getName());
+        super.getTitleComponent().setAlignment(LEFT);
         formutil = new FormUtil();
         mWorkItemsList = getWorkItems(wrapper.getWorkItems());
         initView();
@@ -71,26 +78,57 @@ public class AppList extends Form implements IView, StorageListener, ActionListe
 
     private void initView() {
         initItems();
+
+        super.getTitleStyle().setFgColor(0x000000);
+
         uploadselected = new Command("upload selected", 1);
         uploadall = new Command("Upload All", 2);
-
-        //addCommand(uploadselected);
-        //addCommand(uploadselected);
         addCommandListener(this);
 
 
-        
+
         AppListModel appListModel = new AppListModel(apps);
-        final FilterProxyListModel proxyModel = new FilterProxyListModel(appListModel);
+        proxyModel = new FilterProxyListModel(appListModel);
         list = new List(proxyModel);
-        AppRender appRender = null;
-        list.setListCellRenderer(appRender = new AppRender());
-        list.setFixedSelection(List.FIXED_NONE_CYCLIC);
+        list.setListCellRenderer(new AppointmentListCellRenderer());
+        list.setFixedSelection(List.FIXED_NONE);
         list.addActionListener(this);
         setLayout(new BorderLayout());
 
+        setFocused(list);
+        list.setSelectedIndex(0, true);
+
+
+        initSearchCont();
+        addComponent(BorderLayout.NORTH, searchCont);
+        addComponent(BorderLayout.CENTER, list);
+
+        addCommand(new Command("Back") {
+
+            public void actionPerformed(ActionEvent ae) {
+                System.out.println("Back Command Pressed");
+                AppUtil.get().setView(new GroupList());
+            }
+        });
+    }
+
+    private void initSearchCont() {
+        searchCont = new Container(new BoxLayout(BoxLayout.X_AXIS));
+        try {
+            searchIcon = Image.createImage("/search.png");
+        } catch (IOException ex) {
+            System.out.println(" ERROR . Failed to load search icon ." + ex.toString());
+        }
+        searchlbl = new Label();
+        if (searchIcon != null) {
+            searchlbl.setIcon(searchIcon);
+        } else {
+            searchlbl.setText(" Search :");
+        }
+
+
+        field = new TextField("Click here to search", 22);
         field.setConstraint(TextField.ANY);
-//        searchlbl.getStyle().setFont(lblFont);
         field.setLabelForComponent(searchlbl);
         field.addFocusListener(this);
         field.addDataChangeListener(new DataChangedListener() {
@@ -103,21 +141,13 @@ public class AppList extends Form implements IView, StorageListener, ActionListe
             }
         });
 
-        addComponent(BorderLayout.NORTH, field);
-        addComponent(BorderLayout.CENTER, list);
+        field.getStyle().setMargin(5, 5, 5, 5);
+        Border fieldBorder = Border.createLineBorder(1, 0xe1e1e1);
+        field.getStyle().setBorder(fieldBorder);
 
-        addCommand(new Command("Back") {
+        searchCont.addComponent(searchlbl);
+        searchCont.addComponent(field);
 
-            public void actionPerformed(ActionEvent ae) {
-                System.out.println("Back Command Pressed");
-                GroupList appList = new GroupList("Saved appointments");
-                AppUtil.get().setView(appList);
-            }
-        });
-    }
-
-    private int getAppSize() {
-        return 5;
     }
 
     public Object getScreenObject() {
@@ -125,14 +155,9 @@ public class AppList extends Form implements IView, StorageListener, ActionListe
     }
 
     public void resume(Hashtable args) {
-        //AppUtil.get().setView(this);
-//        this.removeAll();
-//        initView();
-//        AppUtil.get().setView(this);
     }
 
     private void initItems() {
-        //refreshList();
         apps = new Appointment[mWorkItemsList.size()];
         for (int i = 0; i < mWorkItemsList.size(); i++) {
             Appointment app = new Appointment();
@@ -140,14 +165,10 @@ public class AppList extends Form implements IView, StorageListener, ActionListe
             MWorkItem wir = (MWorkItem) mWorkItemsList.elementAt(i);
             formDef = formutil.getFormDef(wir);
             formData = formutil.getFormData(formDef, wir);
-            
+
             app.setRecord_id(wir.getRecordId());
-            
 
 
-            /**
-             * TODO : Need to sort this list in chronological order 
-             */
             Vector preFilledQns = wir.getPrefilledQns();
             for (int k = 0; k < preFilledQns.size(); k++) {
                 MQuestionMap qnMap = (MQuestionMap) preFilledQns.elementAt(k);
@@ -162,69 +183,54 @@ public class AppList extends Form implements IView, StorageListener, ActionListe
                 } else if (questionName.equals("dose_name")) {
                     app.setDose(qnMap.getValue());
 
-                }else if (questionName.equals("date_of_immunization")) {
+                } else if (questionName.equals("date_of_immunization")) {
                     app.setImmunization_date(qnMap.getValue());
 
                 }
             }
-            
+
             wir.setDataRecId(new Integer(formData.getRecordId()));
-            
-            
-            currentPageIndex = 0;
-        currentQuestionIndex = 0;
-        currentQuestion = null;
-        displayedQuestions = new Vector();
-        dirty = false;
 
-        Vector pages = formData.getPages();
-        System.out.println("Size of pages=>"+pages.size());
-        //we will always heave one page for this app.
-        //makes my life simpler
-        currentPage = (PageData)pages.elementAt(0);
-        int numQuestions = currentPage.getNumberOfQuestions();
 
-        System.out.println("Size of questions=>"+numQuestions);
+            Vector pages = formData.getPages();
+            System.out.println("Size of pages=>" + pages.size());
+            //we will always heave one page for this app.
+            //makes my life simpler
+            currentPage = (PageData) pages.elementAt(0);
+            int numQuestions = currentPage.getNumberOfQuestions();
 
-        Vector qtns = currentPage.getQuestions();
-        QuestionData qd;
+            System.out.println("Size of questions=>" + numQuestions);
 
-        for (int t = 0; t < qtns.size(); t++) {
-            qd=(QuestionData)qtns.elementAt(t);
-            if(ifDateImmQue(qd)){
-                //displayedQuestions.addElement(qd);
-                app.setImmunization_date(qd.getTextAnswer());
+            Vector qtns = currentPage.getQuestions();
+            QuestionData qd;
+
+            for (int t = 0; t < qtns.size(); t++) {
+                qd = (QuestionData) qtns.elementAt(t);
+                if (ifDateImmQue(qd)) {
+                    //displayedQuestions.addElement(qd);
+                    app.setImmunization_date(qd.getTextAnswer());
+
+                }
 
             }
-
-        }
             apps[i] = app;
 
 
         }
 
     }
-    
-    public boolean ifDateImmQue(QuestionData qd){
-        String text =  qd.getText();
+
+    public boolean ifDateImmQue(QuestionData qd) {
+        String text = qd.getText();
         ///*||text.equalsIgnoreCase("Reason for not Immunizing")*/
-        if(text.equals("Date of Immunization")){
+        if (text.equals("Date of Immunization")) {
             return true;
-        }else{
+        } else {
             return false;
         }
 
     }
 
-//    private void refreshList() {
-//        Vector items = WFStorage.getMWorkItemList(this);
-//        if(items!=null){
-//            mWorkItemsList=items;
-//        }else{
-//            mWorkItemsList= new Vector(0);
-//        }
-//        System.out.println("Size of my objects =>"+items.size());
-//    }
     public void errorOccured(String string, Exception excptn) {
     }
 
@@ -236,17 +242,17 @@ public class AppList extends Form implements IView, StorageListener, ActionListe
             MWorkItem slectedWir = null;
 
             try {
-                
-                if(mWorkItemsList != null){
+
+                if (mWorkItemsList != null) {
                     slectedWir = (MWorkItem) mWorkItemsList.elementAt(wirIndex);
-                }else{
+                } else {
                     System.out.println(" Failed to execute . Mworkitem list is null");
                 }
-                
+
 
                 if (slectedWir != null) {
 
-                    AppointmentForm appForm = new AppointmentForm(slectedWir , this.getTitle());
+                    AppointmentForm appForm = new AppointmentForm(slectedWir, this.getTitle());
                     AppUtil.get().setView(appForm);
                 } else {
                     System.out.println("Error : Failed to load selected workitem");
@@ -275,15 +281,20 @@ public class AppList extends Form implements IView, StorageListener, ActionListe
 
     public void focusGained(Component cmpnt) {
         if (cmpnt.equals(field)) {
+            Border fieldBorder = Border.createLineBorder(1, 0x9fd056);
+            field.getStyle().setBorder(fieldBorder);
             if (field.getText().equals("Click here to search")) {
                 field.setText("");
             }
-
+            setNextFocusDown(list);
+            list.setSelectedIndex(0, true);
         }
     }
 
     public void focusLost(Component cmpnt) {
         if (cmpnt.equals(field)) {
+            Border fieldBorder = Border.createLineBorder(1, 0xe1e1e1);
+            field.getStyle().setBorder(fieldBorder);
             if (field.getText().equals("")) {
                 field.setText("Click here to search");
             }
@@ -291,13 +302,13 @@ public class AppList extends Form implements IView, StorageListener, ActionListe
         }
     }
 
-    private Vector getWorkItems(Vector ids){
+    private Vector getWorkItems(Vector ids) {
         Vector resp = new Vector();
 
-        for(Enumeration enumids = ids.elements() ; enumids.hasMoreElements();){
+        for (Enumeration enumids = ids.elements(); enumids.hasMoreElements();) {
             int index = Integer.parseInt(enumids.nextElement().toString());
             resp.addElement(WFStorage.getWorkItem(index, this));
         }
-        return resp ;
+        return resp;
     }
 }

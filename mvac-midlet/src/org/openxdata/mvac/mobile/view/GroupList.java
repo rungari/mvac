@@ -2,14 +2,17 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package org.openxdata.mvac.mobile.view;
 
+import org.openxdata.mvac.mobile.model.listmodel.GroupFilterProxyListModel;
+import org.openxdata.mvac.mobile.model.AppointmentWrapper;
+import org.openxdata.mvac.mobile.model.listmodel.AppListModel;
 import com.sun.lwuit.Command;
 import com.sun.lwuit.Component;
+import com.sun.lwuit.Container;
 import com.sun.lwuit.Dialog;
-import com.sun.lwuit.Font;
 import com.sun.lwuit.Form;
+import com.sun.lwuit.Image;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.List;
 import com.sun.lwuit.TextField;
@@ -18,81 +21,110 @@ import com.sun.lwuit.events.ActionListener;
 import com.sun.lwuit.events.DataChangedListener;
 import com.sun.lwuit.events.FocusListener;
 import com.sun.lwuit.layouts.BorderLayout;
-import java.util.Enumeration;
+import com.sun.lwuit.layouts.BoxLayout;
+import com.sun.lwuit.plaf.Border;
+import java.io.IOException;
 import java.util.Hashtable;
-import java.util.Vector;
-import javax.microedition.rms.InvalidRecordIDException;
-import javax.microedition.rms.RecordEnumeration;
-import org.openxdata.db.util.Storage;
 import org.openxdata.db.util.StorageListener;
-import org.openxdata.mvac.mobile.db.WFStorage;
+import org.openxdata.mvac.mobile.builder.AppointmentGroupBuilder;
 import org.openxdata.mvac.mobile.util.AppUtil;
 import org.openxdata.mvac.mobile.util.Constants;
 import org.openxdata.mvac.mobile.util.view.api.IView;
-import org.openxdata.workflow.mobile.model.MQuestionMap;
-import org.openxdata.workflow.mobile.model.MWorkItem;
+import org.openxdata.mvac.mobile.view.renderers.GroupListCellRenderer;
 
 /**
  *
  * @author soyfactor
  */
-public class GroupList extends  Form implements IView,StorageListener,ActionListener,FocusListener{
+public class GroupList extends Form implements IView, StorageListener, ActionListener, FocusListener {
+
     private AppointmentWrapper[] apps;
     private List list;
-    private  TextField field = new TextField("Click here to search", 22);
-    
-//    private Font lblFont = Font.getBitmapFont("mvaccalibri13");
-    private Label searchlbl = new Label("Search:");
-    private Vector mWorkItemsList = new Vector(0);
-    private Hashtable appGroups = new Hashtable();
+    private TextField field = null;
+    private Label searchlbl = new Label();
+    private Image searchIcon = null;
     private AppListModel appListModel;
     private GroupFilterProxyListModel proxyModel;
     private Command back;
+    private Container searchCnt = null;
 
-    
-
-
-
-    public GroupList(String title) {
+    public GroupList() {
         super("Children Due");
+        super.getTitleComponent().setAlignment(LEFT);
+        getTitleStyle().setFgColor(0x7AE969, true);
         initView();
     }
 
-    
-
     private void initView() {
-        initItems();
+
+        apps = AppointmentGroupBuilder.getInstance().build();
+
         back = new Command("Back", 1);
         addCommand(back);
         addCommandListener(this);
-        appListModel=new AppListModel(apps);
+
+        appListModel = new AppListModel(apps);
         proxyModel = new GroupFilterProxyListModel(appListModel);
-        list =  new List(proxyModel);
+        list = new List(proxyModel);
         list.addActionListener(this);
-        list.setListCellRenderer(new AppGroupRender());
-        list.setFixedSelection(List.FIXED_NONE_CYCLIC);
+        list.setListCellRenderer(new GroupListCellRenderer());
+        list.setFixedSelection(List.FIXED_NONE);
+        if (list.size() > 0) {
+            list.setSelectedIndex(0, true);
+        }
+        setFocused(list);
+
+
         setLayout(new BorderLayout());
 
+
+        try {
+            searchIcon = Image.createImage("/search.png");
+        } catch (IOException exception) {
+            System.out.println(" ERROR . Failed to create Image" + exception.getMessage());
+        }
+
+        initSearchCont();
+
+        addComponent(BorderLayout.NORTH, searchCnt);
+        addComponent(BorderLayout.CENTER, list);
+    }
+
+    private void initSearchCont() {
+        searchCnt = new Container(new BoxLayout(BoxLayout.X_AXIS));
+        if (searchIcon != null) {
+            searchlbl.setIcon(searchIcon);
+        }
+        searchlbl = new Label();
+        if (searchIcon != null) {
+            searchlbl.setIcon(searchIcon);
+        } else {
+            searchlbl.setText("Search :");
+        }
+
+        field = new TextField("Click here to search", 22);
         field.setConstraint(TextField.ANY);
-//        searchlbl.getStyle().setFont(lblFont);
         field.setLabelForComponent(searchlbl);
         field.addFocusListener(this);
         field.addDataChangeListener(new DataChangedListener() {
 
             public void dataChanged(int i, int i1) {
-                if(!field.getText().equals("Click here to search")){
+                if (!field.getText().equals("Click here to search")) {
                     proxyModel.filter(field.getText());
                 }
-                
+
             }
         });
 
-        addComponent(BorderLayout.NORTH, field);
-        addComponent(BorderLayout.CENTER, list);
-    }
+        field.getStyle().setMargin(5, 5, 5, 5);
+        Border fieldBorder = Border.createLineBorder(1, 0xe1e1e1);
+        field.getStyle().setBorder(fieldBorder);
 
-    private int getAppSize() {
-        return 5;
+
+        searchCnt.addComponent(searchlbl);
+        searchCnt.addComponent(field);
+
+
     }
 
     public Object getScreenObject() {
@@ -103,123 +135,20 @@ public class GroupList extends  Form implements IView,StorageListener,ActionList
         AppUtil.get().setView(this);
     }
 
-    private void initItems() {
-        refreshList();
-//        System.out.println("Almost looping work items");
-
-        /***
-         * TEST
-         */
-        
-        for(RecordEnumeration re = WFStorage.getWorkItemEnum() ; re.hasNextElement();){
-            AppointmentWrapper wrapper = new AppointmentWrapper(this);
-            Appointment appointment = new Appointment();
-            String child_id = "";
-
-            MWorkItem wir = null;
-            try{
-                wir = WFStorage.getWorkItem(re.nextRecordId(), this);
-                if(wir != null){
-                    appointment.setRecord_id(wir.getDataRecId());
-
-                    Vector preFilledQns = wir.getPrefilledQns();
-                    for (int k = 0; k < preFilledQns.size(); k++) {
-                        MQuestionMap qnMap        = (MQuestionMap) preFilledQns.elementAt(k);
-                        String       questionName = qnMap.getQuestion();
-                        if (questionName.equals("child_name")) {
-                            wrapper.setName(qnMap.getValue());
-                            wrapper.setName(qnMap.getValue());
-
-                        }else if(questionName.equals("caretaker_name")){
-                            wrapper.setCaretaker(qnMap.getValue());
-                            wrapper.setCaretaker(qnMap.getValue());
-
-                        }else if(questionName.equals("child_iis_id")){
-                            child_id=qnMap.getValue();
-                            appointment.setChild_id(qnMap.getValue());
-                        }else if(questionName.equals("child_dob")){
-                            String dob = qnMap.getValue();
-                            if(dob.indexOf("T")>=0){
-                                dob = dob.substring(0, dob.indexOf("T"));
-                            }
-                            wrapper.setChild_dob(dob);
-                        }else if(questionName.equals("caretaker_nid")){
-                            wrapper.setCaretaker_nid(qnMap.getValue());
-                        }
-                    }
-
-                     if(appGroups.containsKey(child_id)){
-                        ((AppointmentWrapper)appGroups.get(child_id)).addElement(appointment);
-                        ((AppointmentWrapper)appGroups.get(child_id)).addWorkItemID(wir.getRecordId());
-//                          System.out.println("Adding existing");
-
-
-                    }else{
-                        wrapper.addElement(appointment);
-                        appGroups.put(child_id, wrapper);
-                        ((AppointmentWrapper)appGroups.get(child_id)).addWorkItemID(wir.getRecordId());
-//                System.out.println("Adding New");
-            }
-
-                }
-            }catch(InvalidRecordIDException exception){
-                System.out.println(" ERROR . Exception thrown when fetching item from store ." + exception.getMessage());
-            }
-        }
-
-        apps = new AppointmentWrapper[appGroups.size()];
-
-        Enumeration e = appGroups.keys();
-        int count=0;
-
-        while(e.hasMoreElements()){
-            String me= e.nextElement().toString();
-            AppointmentWrapper wrapper = (AppointmentWrapper)appGroups.get(me);
-//            wrapper.sort();
-            apps[count]=wrapper ;
-            wrapper = null;
-            count++;
-
-        }
-
-        /**
-         * END OF TEST
-         */
-
-
-
-
-    }
-
-    private void refreshList() {
-        //Vector items = new Vector(0);
-        //items= WFStorage_old.getMWorkItemList(this);
-        //System.out.println("after items"+items);
-//        System.out.println("Abt to check");
-//        if(WFStorage.getSomeMWorkItemList(this) !=null){
-//            mWorkItemsList=WFStorage.getMWorkItemList(this);
-//
-//        }else{
-//            mWorkItemsList= new Vector(0);
-//        }
-        mWorkItemsList = new Vector();
-//        System.out.println("Size of my objects =>"+mWorkItemsList.size());
-    }
-
     public void errorOccured(String string, Exception excptn) {
+        System.out.println(" ERROR . " + (string != null ? string : " SOME ERROR OCCURED"));
     }
 
     public void actionPerformed(ActionEvent ae) {
-        Object src =ae.getSource();
-        if(src==list){
-            AppointmentWrapper apwr= (AppointmentWrapper)list.getSelectedItem();
-System.out.println("Just selected=>"+apwr.getName());
+        Object src = ae.getSource();
+        if (src == list) {
+            AppointmentWrapper apwr = (AppointmentWrapper) list.getSelectedItem();
             AppUtil.get().putItem(Constants.APWR, apwr);
             AppList myList = new AppList(apwr);
             AppUtil.get().setView(myList);
-        }else{
+        } else {
             Command cmd = ae.getCommand();
-            if (cmd==back) {
+            if (cmd == back) {
                 LWUITMainMenu mainMenu = new LWUITMainMenu();
                 AppUtil.get().setView(mainMenu);
             }
@@ -230,23 +159,26 @@ System.out.println("Just selected=>"+apwr.getName());
     }
 
     public void focusGained(Component cmpnt) {
-        if(cmpnt.equals(field)){
-            if(field.getText().equals("Click here to search")){
+        if (cmpnt.equals(field)) {
+            Border fieldBorder = Border.createLineBorder(1, 0x9fd056);
+            field.getStyle().setBorder(fieldBorder);
+            if (field.getText().equals("Click here to search")) {
                 field.setText("");
             }
-            
+            setNextFocusDown(list);
+            list.setSelectedIndex(0, true);
+
         }
     }
 
     public void focusLost(Component cmpnt) {
-        if(cmpnt.equals(field)){
-            if(field.getText().equals("")){
+        if (cmpnt.equals(field)) {
+            Border fieldBorder = Border.createLineBorder(1, 0xe1e1e1);
+            field.getStyle().setBorder(fieldBorder);
+            if (field.getText().equals("")) {
                 field.setText("Click here to search");
             }
-            
+
         }
     }
-
-    
-
 }

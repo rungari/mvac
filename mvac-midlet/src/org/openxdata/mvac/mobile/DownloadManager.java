@@ -47,7 +47,7 @@ public class DownloadManager implements StorageListener {
         ResponseHeader rh                 = new ResponseHeader();
         System.out.println("tlayerDownload");
         tLayer.download(req, localData, rh, workItemsToReceive, tlListener, req.userName, req.password,
-                        "Downloading Appointments");
+                        "Downloading \n Appointments");
     }
     
     
@@ -60,7 +60,7 @@ public class DownloadManager implements StorageListener {
         ResponseHeader rh                 = new ResponseHeader();
         System.out.println("tlayerDownload");
         tLayer.download(req, localData, rh, workItemsToReceive, tlListener, req.userName, req.password,
-                        "Downloading Appointments");
+                        "Downloading \n Appointments");
     }
     
     public void downloadLotNames(TransportLayerListener tlListener) {
@@ -72,7 +72,7 @@ public class DownloadManager implements StorageListener {
         ResponseHeader rh                 = new ResponseHeader();
         System.out.println("tlayerDownload");
         tLayer.download(req, localData, rh, workItemsToReceive, tlListener, req.userName, req.password,
-                        "Downloading Appointments");
+                        "Downloading \n lot \n numbers");
     }
 
     public void downloadWorkItemsById(MWorkItemInfoList infoList, TransportLayerListener tListener) {
@@ -83,7 +83,7 @@ public class DownloadManager implements StorageListener {
         ResponseHeader rh                 = new ResponseHeader();
 
         tLayer.download(req, infoList, rh, workItemsToReceive, tListener, req.userName, req.password,
-                        "Downloading Selected Appointment");
+                        "Downloading \n Selected \n Appointment");
     }
 
     public void downloadStudies(TransportLayerListener listener) {
@@ -95,7 +95,7 @@ public class DownloadManager implements StorageListener {
         ResponseHeader       rh               = new ResponseHeader();
 
         tLayer.download(req, nullLocalData, rh, listStudyDefList, listener, req.getUserName(), req.getPassword(),
-                        "Downloading forms...");
+                        "Downloading \n forms...");
     }
 
     public void uploadWorkItems(TransportLayerListener tLayerListener) throws Exception , Error{
@@ -121,7 +121,7 @@ public class DownloadManager implements StorageListener {
             Persistent        nullDataFromOut = null;
 
             tLayer.upload(req, dataList, rh, nullDataFromOut, tLayerListener, req.getUserName(), req.getPassword(),
-                      "Uploading workItems...");
+                      "Uploading \n workItems...");
         }else{
             System.out.println(" No data available to upload ") ;
             tLayerListener.uploaded(null, null);
@@ -138,7 +138,7 @@ public class DownloadManager implements StorageListener {
         ResponseHeader    rh             = new ResponseHeader();
 
         tLayer.download(req, nullDataFromIn, rh, infoList, wirInfoPresenter, (String)AppUtil.get().getItem(Constants.USERNAME),
-                        (String)AppUtil.get().getItem(Constants.PASSWROD), "Downloading workItem List");
+                        (String)AppUtil.get().getItem(Constants.PASSWROD), "Downloading \n workItem \n List");
     }
 
     private WFRequest getRequest(String action, String seriliser) {

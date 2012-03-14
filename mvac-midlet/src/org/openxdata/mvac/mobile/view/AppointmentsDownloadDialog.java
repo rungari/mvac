@@ -5,6 +5,7 @@
 
 package org.openxdata.mvac.mobile.view;
 
+import com.sun.lwuit.Button;
 import com.sun.lwuit.ComboBox;
 import com.sun.lwuit.Command;
 import com.sun.lwuit.Container;
@@ -37,7 +38,6 @@ public class AppointmentsDownloadDialog extends Form implements ActionListener ,
 
     private Container container = null;
 
-    private Command cmdYes = null;
     private Command cmdNo = null;
 
     private LWUITMainMenu parent = null;
@@ -47,76 +47,75 @@ public class AppointmentsDownloadDialog extends Form implements ActionListener ,
     private int day ;
     private int month ;
     private int year ;
-    private long millisec = 1000;
     private long secondsInDay;
     
     private String finaldate = "";
+    private Button downloadbtn = null;
     
 
 
     public AppointmentsDownloadDialog(LWUITMainMenu mainMenu) {
-        super();
+        super("Download Appointments");
+        super.getTitleComponent().setAlignment(LEFT);
         this.parent = mainMenu;
         secondsInDay=1000L*60*60*24;
-//        setAutoDispose(false);
         setLayout(new BorderLayout());
+        this.getStyle().setBgColor(0xffffff , true);
         init();
         addCommandListener(this);
     }
 
     private void init(){
+        txtConfirm = new TextArea(2 , 5);
+        txtConfirm.setText("Plan appointments "
+                +" for next ?");
+        txtConfirm.setEditable(false);
+        txtConfirm.setFocusable(false);
+//        txtConfirm.setAlignment(CENTER);
+
         cbOptions = new ComboBox(options);
         cbOptions.setSelectedIndex(3);
         cbOptions.setFocus(true);
-        cbOptions.getStyle().setFgColor(0X000000);
-        //cbOptions.getStyle().setBgColor(150);
+
+
         DefaultListCellRenderer dlcr =
                 (DefaultListCellRenderer)cbOptions.getRenderer();
-        dlcr.getStyle().setBgColor(0x7AE969,true);
-        dlcr.getStyle().setFgColor(0x000000,true);
-        dlcr.getStyle().setBgTransparency(255);
-
-
-
+        dlcr.setSelectedStyle(AppUtil.getSelectStyle());
 
         txtLabel = new TextArea(3, 5);
         txtLabel.setEditable(false);
-        txtLabel.setText("You will send all done \n "
-                + "appointments and receive open \n "
-                + "appointments for next :");
-        txtLabel.setAlignment(CENTER);
+        txtLabel.setText("This will upload all saved "
+                + "appointments and download "
+                + "new appointments :");
+//        txtLabel.setAlignment(CENTER);
         txtLabel.setFocusable(false);
 
-        txtConfirm = new TextArea(1, 5);
-        txtConfirm.setText("Are you sure ?");
-        txtConfirm.setEditable(false);
-        txtConfirm.setAlignment(CENTER);
-        txtConfirm.setFocusable(false);
+        downloadbtn = new Button("Download Appointments");
+        downloadbtn.addActionListener(this);
 
         container = new Container(new BoxLayout(BoxLayout.Y_AXIS));
 
-        container.addComponent(txtLabel);
-        container.addComponent(cbOptions);
         container.addComponent(txtConfirm);
+        container.addComponent(cbOptions);
+        container.addComponent(txtLabel);
+        container.addComponent(downloadbtn);
 
         this.addComponent(BorderLayout.CENTER, container);
 
-        cmdYes = new Command("Yes");
-        cmdNo = new Command("No");
+        cmdNo = new Command("Back");
 
-        this.addCommand(cmdYes);
         this.addCommand(cmdNo);
+
         
         
 
     }
 
     public void actionPerformed(ActionEvent actionEvent) {
-        System.out.println("@ Action Performed");
         if(actionEvent.getSource() == cmdNo){
             AppUtil.get().setView(parent);
 
-        }else if(actionEvent.getSource() == cmdYes){
+        }else if(actionEvent.getSource() == downloadbtn){
             String selected = cbOptions.getSelectedItem().toString();
             System.out.println("Selected option :" + selected);
             calendar = Calendar.getInstance();

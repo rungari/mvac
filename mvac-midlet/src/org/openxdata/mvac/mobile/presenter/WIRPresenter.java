@@ -82,7 +82,7 @@ public class WIRPresenter extends FormListenerAdaptor
         } else if (DefaultCommands.cmdSettings == c) {
             tLayer.getUserSettings(display, view.getDisplayable(), null, null);
         } else if (c == DefaultCommands.cmdBack) {
-            Factory.getMVACMenuPresenter().showItems();
+//            Factory.getMVACMenuPresenter().showItems();
         } else {
             dispatcher.fireAction(c, this, null);
         }

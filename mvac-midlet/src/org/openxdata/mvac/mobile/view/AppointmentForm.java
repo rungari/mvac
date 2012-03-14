@@ -4,12 +4,12 @@
  */
 package org.openxdata.mvac.mobile.view;
 
+import org.openxdata.mvac.mobile.model.AppointmentWrapper;
 import com.sun.lwuit.Button;
 import com.sun.lwuit.ComboBox;
 import com.sun.lwuit.Command;
 import com.sun.lwuit.Container;
 import com.sun.lwuit.Dialog;
-import com.sun.lwuit.Font;
 import com.sun.lwuit.Form;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.TextField;
@@ -19,7 +19,6 @@ import com.sun.lwuit.layouts.BorderLayout;
 import com.sun.lwuit.layouts.BoxLayout;
 import com.sun.lwuit.list.DefaultListCellRenderer;
 import com.sun.lwuit.plaf.Border;
-import com.sun.lwuit.plaf.Style;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.util.Date;
@@ -29,16 +28,12 @@ import javax.microedition.lcdui.Display;
 import org.openxdata.communication.TransportLayerListener;
 import org.openxdata.db.util.Persistent;
 import org.openxdata.db.util.StorageListener;
-import org.openxdata.model.FormData;
-import org.openxdata.model.FormDef;
-import org.openxdata.model.PageData;
 import org.openxdata.model.QuestionData;
 import org.openxdata.model.UserListStudyDefList;
 import org.openxdata.mvac.communication.ITransportListener;
 import org.openxdata.mvac.communication.TransportManager;
 import org.openxdata.mvac.communication.model.Message;
 import org.openxdata.mvac.mobile.DownloadManager;
-import org.openxdata.mvac.mobile.api.FormUtil;
 import org.openxdata.mvac.mobile.api.MvacController;
 import org.openxdata.mvac.mobile.db.WFStorage;
 import org.openxdata.mvac.mobile.util.AppUtil;
@@ -63,11 +58,6 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
     private Vector dipslayedQues = new Vector(0);
     private DownloadManager dwnLdMgr;
     private FBProgressIndicator progress;
-    private FormUtil formutil;
-    private FormDef formDef;
-    private FormData formData;
-    private PageData currentPage;
-    private String childname = null;
     private String titleString = "Register Immunization";
     private Command doneCmd = new Command("Save", 1);
     private Command cancelCmd = new Command("Back", 2);
@@ -82,9 +72,6 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
     Container dateCont = new Container(new BoxLayout(BoxLayout.Y_AXIS));
     Container statusCont = new Container(new BoxLayout(BoxLayout.Y_AXIS));
     Container lotContainer = new Container(new BoxLayout(BoxLayout.Y_AXIS));
-    //Container lotIntegrCont = new COntainer
-//    Container lotLeft = new Container(new BoxLayout(BoxLayout.Y_AXIS));
-//    Container lotRight = new Container(new BorderLayout());
     Container reasonCont = new Container(new BoxLayout(BoxLayout.Y_AXIS));
     int notesContID = 3;
     int dateContID = 1;
@@ -107,10 +94,8 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
     //date stuff
     DateField appDate = new DateField(DateField.DDMMYYYY, '/');
     Button selectDate = null;
-    Command selectDateCmd = new Command("Select Date");
-    //lot opts
-    //String[] lotOpts = {"Lot1","Lot2"};
-    ComboBox lotCombo;// = new ComboBox(lotNumArray);
+    Command selectDateCmd = new Command("Change Date");
+    ComboBox lotCombo;
     private boolean isAdded = false;
     private CalendarForm calendarForm = new CalendarForm();
     private QuestionListObj reasonQues = null;
@@ -121,8 +106,7 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
 
     public AppointmentForm(String title) {
         super(title);
-        formutil = new FormUtil();
-
+        super.getTitleComponent().setAlignment(LEFT);
         lots = WFStorage.getLotNumbers(this);
 
         System.out.println("Gotten Lots=>" + lots.getLotNumbers());
@@ -137,10 +121,8 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
         lotCombo = new ComboBox(lotNumArray);
         lotCombo.getStyle().setFgColor(0X000000);
         DefaultListCellRenderer dlcr =
-                (DefaultListCellRenderer) lotCombo.getRenderer();
-        dlcr.getStyle().setBgColor(0x7AE969, true);
-        dlcr.getStyle().setFgColor(0x000000, true);
-        dlcr.getStyle().setBgTransparency(255);
+                (DefaultListCellRenderer)lotCombo.getRenderer();
+        dlcr.setSelectedStyle(AppUtil.getSelectStyle());
 
 
         try {
@@ -150,21 +132,11 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
             e.getMessage();
             e.printStackTrace();
         }
-
-        //initView();
     }
 
     public AppointmentForm(MWorkItem wir, String childname) {
         super("");
-
-        if (childname != null) {
-            this.childname = childname;
-        }
-
-
-        System.out.println("before form util=> : Childname :" + childname);
-        formutil = new FormUtil();
-
+        super.getTitleComponent().setAlignment(LEFT);
         System.out.println("After form util=>");
 
         lots = WFStorage.getLotNumbers(this);
@@ -181,18 +153,14 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
         reasonCombo.getStyle().setFgColor(0X000000);
         DefaultListCellRenderer dlcr =
                 (DefaultListCellRenderer) reasonCombo.getRenderer();
-        dlcr.getStyle().setBgColor(0x7AE969, true);
-        dlcr.getStyle().setFgColor(0x000000, true);
-        dlcr.getStyle().setBgTransparency(255);
+        dlcr.setSelectedStyle(AppUtil.getSelectStyle());
 
         lotCombo = new ComboBox(lotNumArray);
         lotCombo.getStyle().setFgColor(0X000000);
         lotCombo.setFocusPainted(true);
         DefaultListCellRenderer dlcr2 =
                 (DefaultListCellRenderer) lotCombo.getRenderer();
-        dlcr2.getStyle().setBgColor(0x7AE969, true);
-        dlcr2.getStyle().setFgColor(0x000000, true);
-        dlcr2.getStyle().setBgTransparency(255);
+        dlcr2.setSelectedStyle(AppUtil.getSelectStyle());
 
 
         if (childname != null) {
@@ -210,10 +178,6 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
             e.getMessage();
             e.printStackTrace();
         }
-
-
-
-        //initView();
     }
 
     private void initView() {
@@ -224,9 +188,6 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
         dateCont.removeAll();
         statusCont.removeAll();
         lotContainer.removeAll();
-        //Container lotIntegrCont = new COntainer
-//     lotLeft.removeAll();
-//     lotRight.removeAll();
         reasonCont.removeAll();
         this.removeAll();
         lotCombo = new ComboBox(lotNumArray);
@@ -234,18 +195,10 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
         lotCombo.setFocusPainted(true);
         DefaultListCellRenderer dlcr2 =
                 (DefaultListCellRenderer) lotCombo.getRenderer();
-        dlcr2.getStyle().setBgColor(0x7AE969, true);
-        dlcr2.getStyle().setFgColor(0x000000, true);
-        dlcr2.getStyle().setBgTransparency(255);
-
-
-
+        dlcr2.setSelectedStyle(AppUtil.getSelectStyle());
 
     }
 
-    private int getAppSize() {
-        return 5;
-    }
 
     public Object getScreenObject() {
         return this;
@@ -278,7 +231,6 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
             nowShow();
         } else {
             downloadForm();
-
         }
 
 
@@ -286,7 +238,6 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
 
     private void nowShow() {
         selectDate = new Button(selectDateCmd);
-        selectDate.setSelectedStyle(new Style(0xffffff, 0x69b510, Font.getBitmapFont("NokiaSansWide14Bold"), (byte) 255));
         selectDate.addActionListener(this);
         int size = ((MvacController) AppUtil.get().getItem(Constants.CONTROLLER)).getDisplayQues().size();
         ques = new QuestionListObj[size - 1];
@@ -304,8 +255,6 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
             if (!question.equals("Dose ID")) {
                 que.setQuestion(question);
             }
-
-
             if (question.equals("Lot Number")) {
                 que.setType("dropdown");
             } else if (question.equals("Date of Immunization")) {
@@ -318,10 +267,6 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
                 que.setType("dropdown1");
             }
 
-            //ihub
-
-
-
             if (!question.equals("Dose ID")) {
                 System.out.println("@ QuestionList :initItems : Text :" + qd.getText() + "  Text Answer :" + qd.getTextAnswer());
                 que.setValue(qd.getTextAnswer());
@@ -330,31 +275,27 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
             } else {
                 System.out.println("Found Dose ID=>" + qd.getTextAnswer());
             }
-
-
-
         }
 
 
         for (int k = 0; k < ques.length; k++) {
-            if (ques[k].getType().equals("dropdown")) {
-                lotQues = ques[k];
-                appendLotNumber(ques[k]);
+            if (ques[k].getType().equals("Check box")) {
+                statusQues = ques[k];
+                appendStatus(ques[k]);
 
             } else if (ques[k].getType().equals("Date")) {
                 dateQues = ques[k];
                 appendDateofImmunization(ques[k]);
 
-            } else if (ques[k].getType().equals("Check box")) {
-                statusQues = ques[k];
-                appendStatus(ques[k]);
+            }else if (ques[k].getType().equals("dropdown")) {
+                lotQues = ques[k];
+                appendLotNumber(ques[k]);
 
-            } else if (ques[k].getType().equals("textarea")) {
+            }else if (ques[k].getType().equals("textarea")) {
                 notesQues = ques[k];
                 appendNotes(ques[k]);
             } else if (ques[k].getType().equals("dropdown1")) {
                 reasonQues = ques[k];
-
             }
         }
 
@@ -365,11 +306,10 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
                     isAdded = true;
                     enableResCont();
 
-
                 } else if (value.equals("Yes")) {
-                    if (isAdded) {
+//                    if (isAdded) {
                         disableResCont();
-                    }
+//                    }
                 }
             }
 
@@ -377,13 +317,10 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
             System.out.println(" Failed to set default valie @ append status ." + e.toString());
         }
 
-        //addComponent(BorderLayout.NORTH, field);
         addCommandListener(this);
-        //setCommandListener(this);
         setLayout(new BorderLayout());
-
+        getStyle().setBgColor(0xffffff);
         addComponent(BorderLayout.CENTER, mainCont);
-
         addCommand(cancelCmd);
         addCommand(doneCmd);
 
@@ -398,10 +335,7 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
         new BackgroundTask() {
 
             public void performTask() {
-
                 dwnLdMgr.downloadStudies(AppointmentForm.this);
-
-                //dwnLdMgr.uploadWorkItems(null);
             }
 
             public void taskStarted() {
@@ -453,8 +387,6 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
             CalendarCanvas calfoForm = new CalendarCanvas(this);
             ((Display) AppUtil.get().getItem(Constants.MIDP_DISPLAY)).setCurrent(calfoForm);
 
-            //calendarForm.setListener(this);
-            //AppUtil.get().setView(calendarForm);
         } else if (src == calendarForm.okcmd) {
             System.out.println("Selected Date :" + calendarForm.getDate());
 
@@ -469,41 +401,28 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
 
     }
 
-//    private void disableLotCont(){
-//        mainCont.removeComponent(lotContainer);
-////        lotLabel.setFocusable(false);
-////        lotCombo.setFocusable(false);
-////        lotButton.setFocusable(false);
-////        lotContainer.setFocusable(false);
-//    }
-//
-//    private void enableLotCont(){
-//        mainCont.addComponent(lotContID ,lotContainer);
-////        lotLabel.setFocusable(true);
-////        lotCombo.setFocusable(true);
-////        lotButton.setFocusable(true);
-////        lotContainer.setFocusable(true);
-//    }
+
     private void disableResCont() {
         mainCont.removeAll();
-        mainCont.addComponent(lotContainer);
-        mainCont.addComponent(dateCont);
+
         mainCont.addComponent(statusCont);
+        mainCont.addComponent(dateCont);
+        mainCont.addComponent(lotContainer);
         mainCont.addComponent(notesCont);
     }
 
     private void enableResCont() {
         mainCont.removeAll();
-        if (dateCont != null) {
-            mainCont.addComponent(dateCont);
-        } else {
-            appendDateofImmunization(dateQues);
-        }
         if (statusCont != null) {
             mainCont.addComponent(statusCont);
         } else {
             appendStatus(statusQues);
         }
+        if (dateCont != null) {
+            mainCont.addComponent(dateCont);
+        } else {
+            appendDateofImmunization(dateQues);
+        }        
         appendReason();
         if (notesCont != null) {
             mainCont.addComponent(notesCont);
@@ -556,12 +475,8 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
         lotLabel.setText(obj.getQuestion());
         lotContainer.addComponent(lotLabel);
         lotButton.addActionListener(this);
-        lotButton.setSelectedStyle(new Style(0xffffff, 0x69b510, Font.getBitmapFont("NokiaSansWide14Bold"), (byte) 255));
-
         lotContainer.addComponent(lotCombo);
         lotContainer.addComponent(lotButton);
-//        lotLeft.addComponent(lotLabel);
-//        lotLeft.addComponent(lotCombo);
         String value = obj.getValue();
 
 
@@ -570,19 +485,15 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
             lotCombo.setSelectedItem(obj.getValue());
         }
 
-//        lotRight.addComponent(BorderLayout.CENTER, lotButton);
-//        lotContainer.addComponent(BorderLayout.WEST,lotLeft);
-//        lotContainer.addComponent(BorderLayout.EAST,lotRight);
         Border bd = Border.createLineBorder(1, 0x7799bb);
         lotContainer.getStyle().setBorder(bd, true);
-        mainCont.addComponent(lotContainer);
+//        mainCont.addComponent(lotContainer);
 
     }
 
     private void appendDateofImmunization(QuestionListObj obj) {
         datelabel.setText(obj.getQuestion());
         dateCont.addComponent(datelabel);
-//        appDate.addActionListener(this);
         if (obj.getValue() != null && appDate != null) {
             String d = obj.getValue();
             System.out.println("Date is :" + d);
@@ -594,7 +505,6 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
 
         dateCont.addComponent(appDate);
         dateCont.addComponent(selectDate);
-        mainCont.addComponent(dateCont);
     }
 
     private void appendStatus(QuestionListObj obj) {
@@ -604,10 +514,8 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
         String status = obj.getValue();
 
         DefaultListCellRenderer dlcr =
-                (DefaultListCellRenderer) statusCombo.getRenderer();
-        dlcr.getStyle().setBgColor(0x7AE969, true);
-        dlcr.getStyle().setFgColor(0x000000, true);
-        dlcr.getStyle().setBgTransparency(255);
+                (DefaultListCellRenderer)statusCombo.getRenderer();
+        dlcr.setSelectedStyle(AppUtil.getSelectStyle());
 
 
 
@@ -617,7 +525,7 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
             statusCombo.setSelectedItem(obj.getValue());
         }
         statusCont.addComponent(statusCombo);
-        mainCont.addComponent(statusCont);
+//        mainCont.addComponent(statusCont);
 
     }
 
@@ -626,7 +534,7 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
         notesField.setText((obj.getValue() == null) ? "" : "" + obj.getValue());
         notesCont.addComponent(notesLabel);
         notesCont.addComponent(notesField);
-        mainCont.addComponent(notesCont);
+//        mainCont.addComponent(notesCont);
     }
 
     private void appendReason() {
@@ -637,13 +545,12 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
             reasonCombo.getStyle().setFgColor(0X000000);
 
             DefaultListCellRenderer dlcr =
-                    (DefaultListCellRenderer) reasonCombo.getRenderer();
-            dlcr.getStyle().setBgColor(0x7AE969, true);
-            dlcr.getStyle().setFgColor(0x000000, true);
-            dlcr.getStyle().setBgTransparency(255);
+                (DefaultListCellRenderer)reasonCombo.getRenderer();
+                dlcr.setSelectedStyle(AppUtil.getSelectStyle());
+
             //if(reasonQues.getValue() != null) reasonCombo.setSelectedItem(reasonQues.getValue());
             reasonCont.addComponent(reasonCombo);
-            mainCont.addComponent(reasonCont);
+//            mainCont.addComponent(reasonCont);
         }
     }
 
@@ -689,8 +596,6 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
                 Message msg = new Message(url);
                 tm.sendMessage(msg);
 
-                //dwnLdMgr=((MvacController)AppUtil.get().getItem(Constants.CONTROLLER)).getDM();
-                //dwnLdMgr.downloadLotNames(AppointmentForm.this);
             }
         }.start();
     }
@@ -716,7 +621,6 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
 
             InputStreamReader isr = new InputStreamReader(new ByteArrayInputStream(rp.getBytes()));
 
-            //String retrivedLots =
             Object lotobj = parser.processXml(isr);
 
             if (lotobj != null) {
@@ -725,18 +629,8 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
                 LotNumbers downLots = new LotNumbers();
                 downLots.setLotNumbers(lotStr);
                 downLots.setIsnew(true);
-                //
-                //downLots.setRecordId(0);
+
                 WFStorage.saveLotNumbers(downLots, this);
-//                lotCombo = new ComboBox() ;
-//                //System.out.println("Retrieved...."+);
-//                //lotCombo.
-//                for (int i = 0; i < lotNumArray.length; i++) {
-//                    lotCombo.addItem(lotNumArray[i]);
-//                }
-                //lotCombo.ad
-                //lotNumArray =
-                //lotCombo.set
 
             }
 
@@ -785,9 +679,7 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
 
     public void requestFailed(Object error) {
         if (error != null) {
-            /**
-             * TODO . Handle failed request
-             */
+            System.out.println(" ERROR . Request failed ." + error.toString());
         }
     }
 }
