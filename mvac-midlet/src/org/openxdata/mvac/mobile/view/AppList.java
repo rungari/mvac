@@ -38,6 +38,7 @@ import org.openxdata.mvac.mobile.db.WFStorage;
 import org.openxdata.mvac.mobile.util.AppUtil;
 import org.openxdata.mvac.mobile.util.view.api.IView;
 import org.openxdata.mvac.mobile.view.renderers.AppointmentListCellRenderer;
+import org.openxdata.mvac.util.DebugLog;
 import org.openxdata.workflow.mobile.model.MQuestionMap;
 import org.openxdata.workflow.mobile.model.MWorkItem;
 
@@ -61,6 +62,7 @@ public class AppList extends Form implements IView, StorageListener, ActionListe
     private Container searchCont = null;
     private Image searchIcon = null;
     private FilterProxyListModel proxyModel = null;
+    private Command cmdBack ;
 
     public AppList(String title) {
         super(title);
@@ -103,13 +105,11 @@ public class AppList extends Form implements IView, StorageListener, ActionListe
         addComponent(BorderLayout.NORTH, searchCont);
         addComponent(BorderLayout.CENTER, list);
 
-        addCommand(new Command("Back") {
+        cmdBack = new Command("Back");
+        addCommand(cmdBack);
+        addCommandListener(this);
 
-            public void actionPerformed(ActionEvent ae) {
-                System.out.println("Back Command Pressed");
-                AppUtil.get().setView(new GroupList());
-            }
-        });
+        
     }
 
     private void initSearchCont() {
@@ -235,7 +235,8 @@ public class AppList extends Form implements IView, StorageListener, ActionListe
     }
 
     public void actionPerformed(ActionEvent ae) {
-        System.out.println("@ Applist Selected this item=>" + list.getSelectedIndex());
+        DebugLog.getInstance().log("@ Applist . Action Performed .  Selected this item=>" + list.getSelectedIndex() );
+       
         Object src = ae.getSource();
         if (src == list) {
             int wirIndex = list.getSelectedIndex();
@@ -248,12 +249,10 @@ public class AppList extends Form implements IView, StorageListener, ActionListe
                 } else {
                     System.out.println(" Failed to execute . Mworkitem list is null");
                 }
-
-
                 if (slectedWir != null) {
-
-                    AppointmentForm appForm = new AppointmentForm(slectedWir, this.getTitle());
-                    AppUtil.get().setView(appForm);
+                    
+                    RegAppointmentForm appointmentForm = new RegAppointmentForm(slectedWir);
+                    AppUtil.get().setView(appointmentForm);
                 } else {
                     System.out.println("Error : Failed to load selected workitem");
                 }
@@ -268,10 +267,9 @@ public class AppList extends Form implements IView, StorageListener, ActionListe
 //            ((MvacController)AppUtil.get().getItem(Constants.CONTROLLER)).showform(slectedWir);
         } else {
             Command cmd = ae.getCommand();
-            if (cmd == uploadselected) {
-                System.out.println("uploading selected");
-            } else if (cmd == uploadall) {
-                System.out.println("uploading all");
+            if(cmd == cmdBack){
+                System.out.println("Back Command Pressed");
+                AppUtil.get().setView(new GroupList());
             }
         }
     }

@@ -26,24 +26,24 @@ public class CalendarWidget {
 
     /* cells border properties */
     public int borderWidth = 1;
-    public int borderColor = 0xc6c6c6;
+    public int borderColor = 0xffffff;
 
     /* weekday labels properties */
     public Font weekdayFont = Font.getDefaultFont();
-    public int weekdayBgColor = 0x9fd056;
+    public int weekdayBgColor = 0xffffff;
     public int weekdayColor = 0xffffff;
 
     /* header (month-year label) properties */
     public Font headerFont = Font.getDefaultFont();
-    public int headerBgColor = 0x69b510;
+    public int headerBgColor = 0xffffff;
     public int headerColor = 0xffffff;
 
     /* cells properties */
     public Font font = Font.getDefaultFont();
     public int foreColor = 0x000000;
-    public int bgColor = 0x9fd056;
-    public int selectedBgColor = 0xffff00;
-    public int selectedForeColor = 0xff0000;
+    public int bgColor = 0xffffff;
+    public int selectedBgColor = 0x9fd056;
+    public int selectedForeColor = 0x000000;
 
     /* internal properties */
     int width = 0;
@@ -155,10 +155,8 @@ public class CalendarWidget {
     }
 
     void go(int delta) {
-        System.out.println(" Delta Value is :" + delta);
         int prevMonth = calendar.get(Calendar.MONTH);
-        System.out.println(" Current month is  :" + calendar.MONTH );
-
+        
         setDate(currentTimestamp + 86400000 * delta);
 
         //we have to check if month has changed
@@ -175,10 +173,11 @@ public class CalendarWidget {
         g.fillRect(0, 0, width, height);
 
         //painting header (month-year label)
-        g.setFont(headerFont);
+        g.setFont(weekdayFont);
         g.setColor(headerColor);
         g.drawString(MONTH_LABELS[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.YEAR), width / 2, padding, Graphics.TOP | Graphics.HCENTER);
 
+        g.setFont(headerFont);
         //painting week days labels
         g.translate(0, headerHeight);
 

@@ -12,6 +12,7 @@ package org.openxdata.mvac.mobile.util;
 public class Constants {
     public static final String MIDLET = "midlet";
     public static final String MIDP_DISPLAY = "display";
+
     public static final String USERNAME="username";
     public static final String PASSWROD="password";
     public static final String LOGIN_STATUS="login_status";
@@ -35,5 +36,18 @@ public class Constants {
     
     public static final String APWR="appointment_wrapper";
 
+    public static final String DATE = "date";
+    public static final String RESUME = "resume" ;
+    public static final String OK_RESUME = " ok resume";
+    public static final String ERROR = "Error Occured" ;
+
+
+    public static final String LOGGER = "logger" ;
+
+    //Error messages
+    public static final String INVALID_LOGIN = "Enter valid username and password" ;
+    public static final String FAILED_CONNECTION = " Failed to connect to server" ;
+    public static final String UPLOADED = " Uploaded" ;
+    public static final String DOWNLOADED = "Downloaded" ;
 
 }

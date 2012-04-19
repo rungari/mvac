@@ -13,6 +13,7 @@ import org.openxdata.db.util.StorageListener;
 import org.openxdata.mvac.mobile.db.WFStorage;
 import org.openxdata.mvac.mobile.model.Appointment;
 import org.openxdata.mvac.mobile.model.AppointmentWrapper;
+import org.openxdata.mvac.util.DebugLog;
 import org.openxdata.workflow.mobile.model.MQuestionMap;
 import org.openxdata.workflow.mobile.model.MWorkItem;
 
@@ -20,10 +21,11 @@ import org.openxdata.workflow.mobile.model.MWorkItem;
  *
  * @author mutahi
  */
-public class AppointmentGroupBuilder implements StorageListener{
+public class AppointmentGroupBuilder implements StorageListener {
 
     private AppointmentWrapper[] apps = null;;
     private Hashtable appGroups = new Hashtable();
+    private AppointmentInterface listener ;
     
     private static AppointmentGroupBuilder instance = null;
     
@@ -35,12 +37,14 @@ public class AppointmentGroupBuilder implements StorageListener{
         return instance;
     }
 
-    public AppointmentWrapper[] build() {
-
+    public void build(AppointmentInterface appointmentInterface) {
+        listener = appointmentInterface ;
         if(apps != null){
-            return apps ;
+            if(listener != null) listener.dataReady(apps);
+            return;
         }
 
+        DebugLog.getInstance().log(" @AppointmentBuilder.build .About to start fetching " + (apps == null? " .Array is null " : ""+apps.length));
         for (RecordEnumeration re = WFStorage.getWorkItemEnum(); re.hasNextElement();) {
             AppointmentWrapper wrapper = new AppointmentWrapper(this);
             Appointment appointment = new Appointment();
@@ -91,12 +95,14 @@ public class AppointmentGroupBuilder implements StorageListener{
 
                 }
             } catch (InvalidRecordIDException exception) {
-                System.out.println(" ERROR . Exception thrown when fetching item from store ." + exception.getMessage());
+                DebugLog.getInstance().log(" ERROR . Exception thrown when fetching item from store ." + exception.getMessage());
             }
         }
+        DebugLog.getInstance().log(" Out of big loop : Size of hashtable :" + appGroups.size());
 
+        if(appGroups.size() > 0){
         apps = new AppointmentWrapper[appGroups.size()];
-
+        DebugLog.getInstance().log(" ------------After initing array--------------");
         Enumeration e = appGroups.keys();
         int count = 0;
 
@@ -110,12 +116,22 @@ public class AppointmentGroupBuilder implements StorageListener{
 
         appGroups.clear();
         appGroups = null;
-
-        return apps ;
+        DebugLog.getInstance().log("-----------About to return to listener----------------");
+        if(listener != null ) listener.dataReady(apps);
+        }
+//        else{
+//            if(listener != null) listener.emptySet();
+//        }
 
     }
 
     public void errorOccured(String arg0, Exception arg1) {
-        System.out.println(" ERROR : SOMETHING WENT WRONG ");
+        DebugLog.getInstance().log("<<<<<<<<<<<<<<<<<<<< @Appointment Builder . ERROR : SOMETHING WENT WRONG >>>>>>>>>>>>>>>>>");
     }
+
+    public void clear(){
+        this.apps = null;
+    }
+
+
 }

@@ -19,7 +19,7 @@ import org.openxdata.workflow.mobile.model.MWorkItemList;
 import java.util.Vector;
 import org.openxdata.mvac.mobile.util.AppUtil;
 import org.openxdata.mvac.mobile.util.Constants;
-import org.openxdata.mvac.model.LotNumbers;
+import org.openxdata.mvac.mobile.model.LotNumbers;
 
 public class WFStorage_old {
     public final static String WORK_ITEM_STORAGE = "workitem.storage";

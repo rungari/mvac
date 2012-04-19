@@ -9,13 +9,10 @@ import com.sun.lwuit.Command;
 import com.sun.lwuit.Container;
 import com.sun.lwuit.Dialog;
 import com.sun.lwuit.Label;
-import com.sun.lwuit.TextArea;
 import com.sun.lwuit.events.ActionListener;
 import com.sun.lwuit.layouts.BorderLayout;
-import com.sun.lwuit.layouts.BoxLayout;
 import com.sun.lwuit.layouts.CoordinateLayout;
 import java.io.IOException;
-import javax.microedition.lcdui.TextBox;
 
 /**
  *
@@ -40,8 +37,7 @@ private AnimatedGIF image;
         this.listener = listener;
         this.setAutoDispose(false);
         this.getStyle().setPadding(5, 5, 5, 5);
-        addCommandListener(this.listener);
-        
+        addCommandListener(this.listener);      
         
         setLayout(new BorderLayout());
 
@@ -85,6 +81,10 @@ private AnimatedGIF image;
     
     public void updateMsg(String msgString){
         imagelbl.setText(msgString);
+    }
+
+    public void disableCommands(){
+        this.removeCommand(cancel);
     }
 
 

@@ -13,6 +13,8 @@ import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
 import com.sun.lwuit.layouts.BorderLayout;
 import com.sun.lwuit.layouts.CoordinateLayout;
+import java.util.Hashtable;
+import org.openxdata.mvac.mobile.util.Constants;
 import org.openxdata.mvac.mobile.util.view.api.IView;
 
 /**
@@ -46,6 +48,7 @@ public class ErrorAlert extends Dialog implements ActionListener {
         msg.setText(message);
         msg.setAlignment(CENTER);
         msg.setFocusable(false);
+        msg.getStyle().setBgColor(0x9fd056, focusScrolling);
         msg.setX(5);
         msg.setY(h/3);
         msg.setPreferredW(140);
@@ -62,7 +65,9 @@ public class ErrorAlert extends Dialog implements ActionListener {
 
     public void actionPerformed(ActionEvent actionEvent) {
         if(actionEvent.getSource() == cmdOk){
-            parent.resume(null);
+            Hashtable resp = new Hashtable();
+            resp.put(Constants.ERROR, "error");
+            parent.resume(resp);
         }
     }
 

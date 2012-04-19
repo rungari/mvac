@@ -27,16 +27,18 @@ import java.io.IOException;
 import java.util.Hashtable;
 import org.openxdata.db.util.StorageListener;
 import org.openxdata.mvac.mobile.builder.AppointmentGroupBuilder;
+import org.openxdata.mvac.mobile.builder.AppointmentInterface;
 import org.openxdata.mvac.mobile.util.AppUtil;
 import org.openxdata.mvac.mobile.util.Constants;
 import org.openxdata.mvac.mobile.util.view.api.IView;
 import org.openxdata.mvac.mobile.view.renderers.GroupListCellRenderer;
+import org.openxdata.mvac.util.DebugLog;
 
 /**
  *
  * @author soyfactor
  */
-public class GroupList extends Form implements IView, StorageListener, ActionListener, FocusListener {
+public class GroupList extends Form implements IView, StorageListener, ActionListener, FocusListener, AppointmentInterface {
 
     private AppointmentWrapper[] apps;
     private List list;
@@ -47,17 +49,18 @@ public class GroupList extends Form implements IView, StorageListener, ActionLis
     private GroupFilterProxyListModel proxyModel;
     private Command back;
     private Container searchCnt = null;
+    private FBProgressIndicator progress = null;
 
     public GroupList() {
         super("Children Due");
         super.getTitleComponent().setAlignment(LEFT);
         getTitleStyle().setFgColor(0x7AE969, true);
-        initView();
+        AppointmentGroupBuilder.getInstance().build(this);        
+
     }
+    
 
     private void initView() {
-
-        apps = AppointmentGroupBuilder.getInstance().build();
 
         back = new Command("Back", 1);
         addCommand(back);
@@ -132,11 +135,19 @@ public class GroupList extends Form implements IView, StorageListener, ActionLis
     }
 
     public void resume(Hashtable args) {
-        AppUtil.get().setView(this);
+        if (args != null && args.containsKey(Constants.OK_RESUME)) {
+            AppointmentsDownloadDialog downloadDialog = new AppointmentsDownloadDialog(new LWUITMainMenu());
+            downloadDialog.show();
+        } else if (args != null && args.containsKey(Constants.ERROR)) {
+            AppUtil.get().setView(new LWUITMainMenu());
+        } else {
+            AppUtil.get().setView(this);
+        }
+
     }
 
     public void errorOccured(String string, Exception excptn) {
-        System.out.println(" ERROR . " + (string != null ? string : " SOME ERROR OCCURED"));
+        DebugLog.getInstance().log(" ERROR . " + (string != null ? string : " SOME ERROR OCCURED"));
     }
 
     public void actionPerformed(ActionEvent ae) {
@@ -180,5 +191,25 @@ public class GroupList extends Form implements IView, StorageListener, ActionLis
             }
 
         }
+    }
+
+    public void dataReady(AppointmentWrapper[] wrapper) {
+        if (wrapper != null) {
+            apps = wrapper;
+            initView();
+            
+        } else {
+            ErrorAlert errorAlert = new ErrorAlert(this, " Something went wrong");
+            errorAlert.show();
+        }
+
+    }
+
+    public void emptySet() {
+        /**
+         * Show alert and redirect to download dialog
+         */
+        GenericAlert genericAlert = new GenericAlert(this, " No Appointments available . Download first ");
+        genericAlert.show();
     }
 }

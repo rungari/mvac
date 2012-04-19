@@ -11,15 +11,13 @@ import org.xmlpull.v1.XmlPullParser;
 
 public class XmlParser {
 	
-	static Hashtable myHandlers;
+	private Hashtable myHandlers;
+
+        public XmlParser() {
+            initProcessingRules();
+        }
 	
-	static {
-		initProcessingRules();
-		
-	}
-	
-	
-	private static void initProcessingRules (){
+	private void initProcessingRules (){
 		IElementHandler lothandler = new LotNumberHandler();
 		//create handlers for different types of tags . Not all. just the important ones like question handler.
 		//Its up to ur discretion / design method
@@ -44,7 +42,7 @@ public class XmlParser {
 			System.out.println("Error closing reader");
 			e.printStackTrace();
 		}
-		
+		reader = null;
 		
 		if (doc != null) {
 			try {

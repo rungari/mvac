@@ -71,7 +71,7 @@ public class AppointmentsDownloadDialog extends Form implements ActionListener ,
                 +" for next ?");
         txtConfirm.setEditable(false);
         txtConfirm.setFocusable(false);
-//        txtConfirm.setAlignment(CENTER);
+        txtConfirm.getStyle().setBgColor(0xffffff , true);
 
         cbOptions = new ComboBox(options);
         cbOptions.setSelectedIndex(3);
@@ -87,7 +87,7 @@ public class AppointmentsDownloadDialog extends Form implements ActionListener ,
         txtLabel.setText("This will upload all saved "
                 + "appointments and download "
                 + "new appointments :");
-//        txtLabel.setAlignment(CENTER);
+        txtLabel.getStyle().setBgColor(0xffffff, true);
         txtLabel.setFocusable(false);
 
         downloadbtn = new Button("Download Appointments");
@@ -159,7 +159,6 @@ public class AppointmentsDownloadDialog extends Form implements ActionListener ,
             //String downDate = "2010-09-02";
            AppUtil.get().putItem(Constants.DOWNLOAD_DATE, finaldate);
            parent.queryReturned(true);
-//            parent.dialogReturned(this, true);
 
 
         }

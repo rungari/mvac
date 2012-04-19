@@ -44,7 +44,7 @@ import org.openxdata.mvac.mobile.view.widgets.CalendarCanvas;
 import org.openxdata.workflow.mobile.model.MWorkItem;
 import org.openxdata.mvac.mobile.api.SavingListener;
 import org.openxdata.mvac.mobile.xml.XmlParser;
-import org.openxdata.mvac.model.LotNumbers;
+import org.openxdata.mvac.mobile.model.LotNumbers;
 
 /**
  *
@@ -53,7 +53,6 @@ import org.openxdata.mvac.model.LotNumbers;
 public class AppointmentForm extends Form implements IView, StorageListener, ActionListener, TransportLayerListener, SavingListener, ITransportListener {
 
     private QuestionListObj[] ques;
-    //private IView parent;
     private MWorkItem wir;
     private Vector dipslayedQues = new Vector(0);
     private DownloadManager dwnLdMgr;
@@ -119,7 +118,6 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
 
 
         lotCombo = new ComboBox(lotNumArray);
-        lotCombo.getStyle().setFgColor(0X000000);
         DefaultListCellRenderer dlcr =
                 (DefaultListCellRenderer)lotCombo.getRenderer();
         dlcr.setSelectedStyle(AppUtil.getSelectStyle());
@@ -311,10 +309,12 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
                         disableResCont();
 //                    }
                 }
+            }else{
+                disableResCont();
             }
 
         } catch (Exception e) {
-            System.out.println(" Failed to set default valie @ append status ." + e.toString());
+            System.out.println(" Failed to set default value @ append status ." + e.toString());
         }
 
         addCommandListener(this);
@@ -492,6 +492,9 @@ public class AppointmentForm extends Form implements IView, StorageListener, Act
     }
 
     private void appendDateofImmunization(QuestionListObj obj) {
+        datelabel.getStyle().setMargin(0, 0 , 10 , 10);
+        datelabel.getStyle().setBgColor(0xffffff , true);
+        datelabel.setFocusable(false);
         datelabel.setText(obj.getQuestion());
         dateCont.addComponent(datelabel);
         if (obj.getValue() != null && appDate != null) {

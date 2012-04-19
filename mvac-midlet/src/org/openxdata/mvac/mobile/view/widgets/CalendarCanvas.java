@@ -28,7 +28,8 @@ public class CalendarCanvas extends Canvas implements CommandListener{
     CalendarWidget calendar = null;
     MIDlet midlet = null;
     IView parent;
-    private Command cmdback = new Command("Back", Command.BACK, 0);
+    private Command cmdback = new Command("Back", Command.CANCEL, 0);
+    private Command cmdSelect = new Command("Select" , Command.BACK , 0) ;
 
     public CalendarCanvas(IView parent) {
         this.midlet = (MIDlet) AppUtil.get().getItem(Constants.MIDLET);
@@ -38,24 +39,23 @@ public class CalendarCanvas extends Canvas implements CommandListener{
 
         calendar.headerFont = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_LARGE);
         calendar.weekdayFont = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_MEDIUM);
-        calendar.weekdayBgColor = 0xccccff;
-        calendar.weekdayColor = 0x0000ff;
-        calendar.headerColor = 0xffffff;
+        calendar.weekdayBgColor = 0xffffff;
+        calendar.weekdayColor = 0x9fd056;
+        calendar.headerColor = 0x000000;
         calendar.initialize();
 
+        this.setTitle("Date");
+
         this.addCommand(cmdback);
+        this.addCommand(cmdSelect);
         this.setCommandListener(this);
     }
 
     protected void keyPressed(int key) {
         int keyCode = getGameAction(key);
-        System.out.println(" Key Pressed :" + keyCode);
         if (keyCode == FIRE || keyCode == KEY_NUM5) {
-//			Display.getDisplay(midlet).setCurrent(
-//				new Alert("Selected date", calendar.getSelectedDate().toString(), null, AlertType.CONFIRMATION)
-//			);
             Hashtable args = new Hashtable();
-            args.put("date", calendar.getSelectedDate());
+            args.put(Constants.DATE, calendar.getSelectedDate());
             parent.resume(args);
         } else {
             calendar.keyPressed(keyCode);
@@ -73,7 +73,13 @@ public class CalendarCanvas extends Canvas implements CommandListener{
 
     public void commandAction(Command c, Displayable d) {
         if(c == cmdback){
-            if(parent != null) parent.resume(null);
+            Hashtable resp = new Hashtable();
+            resp.put(Constants.RESUME, Constants.RESUME);
+            if(parent != null) parent.resume(resp);
+        }else if(c == cmdSelect){
+            Hashtable args = new Hashtable();
+            args.put(Constants.DATE, calendar.getSelectedDate());
+            parent.resume(args);
         }
     }
 }

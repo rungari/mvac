@@ -1,15 +1,10 @@
 package org.openxdata.mvac.mobile.xml;
 
-import java.util.Vector;
 import org.kxml2.kdom.Element;
 
 public class LotNumberHandler implements IElementHandler {
         StringBuffer sf = new StringBuffer();
-        //VaccineLots
-	
-	
 
-                
 	//in this funtion u retrieve from the metadata tag and construct ur metadata object
 	public Object handle(Element e) {
 		

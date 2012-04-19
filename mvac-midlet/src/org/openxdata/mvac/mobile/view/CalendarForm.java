@@ -7,12 +7,10 @@ package org.openxdata.mvac.mobile.view;
 import com.sun.lwuit.Calendar;
 import com.sun.lwuit.Command;
 import com.sun.lwuit.Dialog;
-import com.sun.lwuit.Font;
 import com.sun.lwuit.Form;
 import com.sun.lwuit.events.ActionListener;
 import com.sun.lwuit.layouts.BorderLayout;
 import com.sun.lwuit.layouts.BoxLayout;
-import com.sun.lwuit.plaf.Style;
 import java.util.Date;
 import java.util.Hashtable;
 import javax.microedition.lcdui.Canvas;
@@ -57,8 +55,7 @@ public class CalendarForm extends Form implements IView {
     private void initView() {
         setScrollable(false);
         calendar.setFocus(true);
-        calendar.setLayout(new BoxLayout(BoxLayout.Y_AXIS));
-                
+        calendar.setLayout(new BoxLayout(BoxLayout.Y_AXIS));                
         //calendar.
         setLayout(new BorderLayout());
         this.addComponent(BorderLayout.CENTER, calendar);
@@ -90,55 +87,55 @@ public class CalendarForm extends Form implements IView {
         AppUtil.get().setView(this);
     }
 
-    public void keyPressed(int keyCode) {
-        int gameAction = scrMon.getGameAction(keyCode);
-        System.out.println("Key pressed-->"+keyCode);
-        System.out.println("Game action-->"+gameAction);
-        System.out.println("cLeft-->"+Canvas.LEFT);
-                System.out.println("cRight-->"+Canvas.RIGHT);
-                System.out.println("cUp-->"+Canvas.UP);
-                System.out.println("cDown-->"+Canvas.DOWN);
-                if (gameAction == Canvas.LEFT) {
-
-                    long update2 = selecteddate - MILLIS_PER_DAY;
-                    refreshCal(update2);
-//                    calendar.setDate(new Date(update2));
-//                    selecteddate = update2;
-//                    calendar.revalidate();
-//                    calendar.repaint();
-                    //CalendarForm.this.repaint();
-
-                } else if (gameAction == Canvas.RIGHT) {
-                    long update = selecteddate +MILLIS_PER_DAY;
-                    refreshCal(update);
-//                    calendar.setDate(new Date(update));
-//                    selecteddate = update;
-//                    calendar.revalidate();
-//                    calendar.repaint();
-                   //CalendarForm.this.repaint();
-
-                } else if (gameAction == Canvas.DOWN) {
-                    long update3 = selecteddate + (MILLIS_PER_DAY*7);
-                    refreshCal(update3);
-//                    calendar.setDate(new Date(update));
-//                    selecteddate = update;
-//                    calendar.revalidate();
-//                    calendar.repaint();
-                   //CalendarForm.this.repaint();
-
-                }else if (gameAction == Canvas.UP) {
-                    long update = selecteddate - (MILLIS_PER_DAY*7);
-                    refreshCal(update);
-//                    calendar.setDate(new Date(update));
-//                    selecteddate = update;
-//                    calendar.revalidate();
-//                    calendar.repaint();
-                   //CalendarForm.this.repaint();
-
-                } else {
-                    super.keyPressed(keyCode);
-                }
-    }
+//    public void keyPressed(int keyCode) {
+//        int gameAction = scrMon.getGameAction(keyCode);
+//        System.out.println("Key pressed-->"+keyCode);
+//        System.out.println("Game action-->"+gameAction);
+//        System.out.println("cLeft-->"+Canvas.LEFT);
+//                System.out.println("cRight-->"+Canvas.RIGHT);
+//                System.out.println("cUp-->"+Canvas.UP);
+//                System.out.println("cDown-->"+Canvas.DOWN);
+//                if (gameAction == Canvas.LEFT) {
+//
+//                    long update2 = selecteddate - MILLIS_PER_DAY;
+//                    refreshCal(update2);
+////                    calendar.setDate(new Date(update2));
+////                    selecteddate = update2;
+////                    calendar.revalidate();
+////                    calendar.repaint();
+//                    //CalendarForm.this.repaint();
+//
+//                } else if (gameAction == Canvas.RIGHT) {
+//                    long update = selecteddate +MILLIS_PER_DAY;
+//                    refreshCal(update);
+////                    calendar.setDate(new Date(update));
+////                    selecteddate = update;
+////                    calendar.revalidate();
+////                    calendar.repaint();
+//                   //CalendarForm.this.repaint();
+//
+//                } else if (gameAction == Canvas.DOWN) {
+//                    long update3 = selecteddate + (MILLIS_PER_DAY*7);
+//                    refreshCal(update3);
+////                    calendar.setDate(new Date(update));
+////                    selecteddate = update;
+////                    calendar.revalidate();
+////                    calendar.repaint();
+//                   //CalendarForm.this.repaint();
+//
+//                }else if (gameAction == Canvas.UP) {
+//                    long update = selecteddate - (MILLIS_PER_DAY*7);
+//                    refreshCal(update);
+////                    calendar.setDate(new Date(update));
+////                    selecteddate = update;
+////                    calendar.revalidate();
+////                    calendar.repaint();
+//                   //CalendarForm.this.repaint();
+//
+//                } else {
+//                    super.keyPressed(keyCode);
+//                }
+//    }
 
     public String getSourceText() {
         return sourceText;

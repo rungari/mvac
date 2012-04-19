@@ -2,11 +2,13 @@ package org.openxdata.mvac.mobile.view.renderers;
 
 import com.sun.lwuit.Component;
 import com.sun.lwuit.Container;
+import com.sun.lwuit.Image;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.List;
 import com.sun.lwuit.layouts.BorderLayout;
 import com.sun.lwuit.layouts.BoxLayout;
 import com.sun.lwuit.plaf.Border;
+import java.io.IOException;
 import org.openxdata.mvac.mobile.model.Appointment;
 
 /**
@@ -16,15 +18,15 @@ import org.openxdata.mvac.mobile.model.Appointment;
 public class AppointmentListCellRenderer extends DefaultMVACListCellRenderer {
 
     private Label scheduledlbl;
-    private Label administeredlbl;
     private Label vaccine_name;
     private Label scheduled_date;
-    private Label administered_date;
+    private Container markCont;
     private Container cnt;
     private Container vaccineCnt;
     private Container scheduleCnt;
-    private Container administeredcnt;
     private String vaccine_dose = new String();
+    private Label mark;
+    private Image checkImage;
 
     public AppointmentListCellRenderer() {
         super();
@@ -34,7 +36,7 @@ public class AppointmentListCellRenderer extends DefaultMVACListCellRenderer {
         cnt = new Container(new BoxLayout(BoxLayout.Y_AXIS));
         vaccineCnt = new Container(new BoxLayout(BoxLayout.X_AXIS));
         scheduleCnt = new Container(new BoxLayout(BoxLayout.X_AXIS));
-        administeredcnt = new Container(new BoxLayout(BoxLayout.X_AXIS));
+        markCont = new Container(new BoxLayout(BoxLayout.X_AXIS));
     }
 
     public Component getListCellRendererComponent(List list, Object value, int index, boolean isSelected) {
@@ -62,25 +64,19 @@ public class AppointmentListCellRenderer extends DefaultMVACListCellRenderer {
         scheduledlbl = new Label("Scheduled:");
         scheduled_date = new Label(date);
 
-
-        administeredlbl = new Label("Administered:");
         String imm_date = appointment.getImmunization_date();
         if (imm_date == null || imm_date.length() < 1) {
             imm_date = "Pending";
         }
-        administered_date = new Label(imm_date);
 
 
         vaccineCnt.addComponent(vaccine_name);
         scheduleCnt.addComponent(scheduledlbl);
         scheduleCnt.addComponent(scheduled_date);
-//        administeredcnt.addComponent(administeredlbl);
-//        administeredcnt.addComponent(administered_date);
 
 
         cnt.addComponent(vaccineCnt);
         cnt.addComponent(scheduleCnt);
-//        cnt.addComponent(administeredcnt);
         Border bd = Border.createLineBorder(1, 0x7799bb);
         cnt.getStyle().setBorder(bd, true);
         cnt.getStyle().setMargin(0, 10, 0, 0);
@@ -93,6 +89,27 @@ public class AppointmentListCellRenderer extends DefaultMVACListCellRenderer {
             cnt.getStyle().setBgTransparency(150, true);
         }
 
+
+        mark = new Label();
+        mark.getStyle().setPadding(0, 0, 0, 5);
+        try {
+            checkImage = Image.createImage("/greencheck.png");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        
+        if (checkImage != null) {            
+            if (appointment.getImmunization_date() == null || appointment.getImmunization_date().length() < 1) {
+                Image blank = Image.createImage(checkImage.getWidth(), checkImage.getHeight(),0xffffff);
+                mark.setIcon(blank);
+            }else{
+                 mark.setIcon(checkImage);
+            }
+        } 
+
+
+        markCont.addComponent(mark);
+        addComponent(BorderLayout.WEST, markCont);
         addComponent(BorderLayout.CENTER, cnt);
 
         return this;

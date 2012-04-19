@@ -6,12 +6,12 @@ package org.openxdata.mvac.communication.worker;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import javax.microedition.io.ConnectionNotFoundException;
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 import mike.messaging.communication.worker.IWorker;
 import org.openxdata.mvac.communication.TransportManager;
 import org.openxdata.mvac.communication.model.Message;
+import org.openxdata.mvac.util.DebugLog;
 
 /**
  *
@@ -44,7 +44,7 @@ public class HttpWorker implements IWorker {
         String reqString = msg.requestString();
         
         reqString = reqString.substring(0, reqString.length()-1);
-        System.out.println(reqString);
+        DebugLog.getInstance().log(" @HttpWorker . Request String is : " + reqString);
         try {
             
             httpconnection = (HttpConnection) Connector.open(reqString);
@@ -57,7 +57,7 @@ public class HttpWorker implements IWorker {
                 stringbuffer.append((char) i);
             }
         } catch (IOException ex) {
-            System.out.println("Exception thrown :" + ex.toString());
+            DebugLog.getInstance().log("Exception thrown :" + ex.toString());
 //            ex.printStackTrace();
             tm.errorOccured(ex);
 
@@ -75,23 +75,7 @@ public class HttpWorker implements IWorker {
 
             
         }
-
-        //  stringbuffer.append("ERROR");
-//
-//        try {
-//            if (httpconnection != null) {
-//                httpconnection.close();
-//            }
-//            if (datainputstream != null) {
-//                datainputstream.close();
-//            }
-//        } catch (IOException ioexception1) {
-//            ioexception1.printStackTrace();
-//        }
-//
-//        
-//        throw exception1;
-        //return stringbuffer.toString();
+        DebugLog.getInstance().log("@HttpWorker . About to send response ." + stringbuffer);
         tm.finishedSend(stringbuffer.toString());
 
     }

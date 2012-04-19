@@ -9,6 +9,7 @@ import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
 import org.openxdata.mvac.mobile.util.AppUtil;
 import org.openxdata.mvac.mobile.view.LWUITLoginForm;
+import org.openxdata.mvac.util.DebugLog;
 
 /**
  *
@@ -19,11 +20,9 @@ public class MvacMidlet extends MIDlet {
     public MvacMidlet() {
         AppUtil.init(this);
     }
-
-
-    
     
     protected void startApp() throws MIDletStateChangeException {
+        DebugLog.getInstance().log(" SYSTEM READY . About to display ");
         LWUITLoginForm loginForm = new LWUITLoginForm("User Login");
         AppUtil.get().setView(loginForm);
     }

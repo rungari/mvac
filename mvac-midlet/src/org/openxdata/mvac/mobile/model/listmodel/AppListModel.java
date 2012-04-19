@@ -28,7 +28,7 @@ public class AppListModel implements ListModel {
     }
 
     public int getSize() {
-        return objs.length;
+           return objs.length;
     }
 
     public int getSelectedIndex() {

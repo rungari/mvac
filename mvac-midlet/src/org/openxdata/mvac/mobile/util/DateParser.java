@@ -66,7 +66,7 @@ public class DateParser {
         Calendar cal = Calendar.getInstance();
         Date d = new Date(0);
 
-        String[] dA = split(date , separator);
+        String[] dA = split(date.trim() , separator);
 
         if(dA[0] != null ) cal.set(Calendar.DAY_OF_MONTH, Integer.parseInt(dA[0]));
         System.out.println(" Month is : " + Integer.parseInt(dA[1]));

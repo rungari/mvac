@@ -40,11 +40,8 @@ public class LWUITDisplay implements IDisplay {
             ioe.printStackTrace();
         }
 
-//        Hashtable i18n = new Hashtable();
-//        i18n.put("menu", NEWUI_OPTIONS);
-//        i18n.put("select", NEWUI_SELECT);
-//        i18n.put("cancel", NEWUI_CANCEL);
-//        UIManager.getInstance().setResourceBundle(i18n);
+        
+
     }
 
     public Resources getResources(){

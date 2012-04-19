@@ -1,12 +1,13 @@
 package org.openxdata.mvac.mobile.db;
 
+
+import java.util.Enumeration;
 import java.util.Vector;
 
 import javax.microedition.rms.RecordEnumeration;
 import javax.microedition.rms.RecordStore;
 import javax.microedition.rms.RecordStoreException;
-import javax.microedition.rms.RecordStoreFullException;
-import javax.microedition.rms.RecordStoreNotFoundException;
+import javax.microedition.rms.RecordStoreNotOpenException;
 import org.openxdata.db.OpenXdataDataStorage;
 import org.openxdata.db.util.Storage;
 import org.openxdata.db.util.StorageFactory;
@@ -19,7 +20,8 @@ import org.openxdata.model.UserListStudyDefList;
 import org.openxdata.mvac.mobile.util.AppUtil;
 import org.openxdata.mvac.mobile.util.Constants;
 import org.openxdata.mvac.mobile.util.WFDateSorter;
-import org.openxdata.mvac.model.LotNumbers;
+import org.openxdata.mvac.mobile.model.LotNumbers;
+import org.openxdata.mvac.util.DebugLog;
 import org.openxdata.workflow.mobile.model.MWorkItem;
 import org.openxdata.workflow.mobile.model.MWorkItemDataList;
 import org.openxdata.workflow.mobile.model.MWorkItemList;
@@ -60,9 +62,10 @@ public class WFStorage {
 
     private static Storage getLotStorage(StorageListener listener) {
         Storage storage = StorageFactory.getStorage(getLotStorageName(), listener);
-
         return storage;
     }
+
+    
 
     public static void saveMWorkItemList(MWorkItemList itemList,
                                          StorageListener listener) {
@@ -114,21 +117,40 @@ public class WFStorage {
 
     public static synchronized RecordEnumeration getWorkItemEnum() {
         RecordEnumeration re = null;
+        RecordStore rs = null;
         try {
-            RecordStore rs = RecordStore.openRecordStore(WFStorage.getWIRStorageName(), true);
+             rs = RecordStore.openRecordStore(WFStorage.getWIRStorageName(), true);
             if(rs != null){
                 re = rs.enumerateRecords(null, new WFDateSorter(), false);
             }
         } catch (RecordStoreException ex) {
             System.out.println(" ERROR : Exception thrown when loading store ." + ex.getMessage());
+        }finally{
+            if(rs != null ) try {
+                rs.closeRecordStore();
+            } catch (RecordStoreNotOpenException ex) {
+                DebugLog.getInstance().log(" @getWorkItemEnum . Exception thrown . " + ex.getMessage());
+            } catch (RecordStoreException ex) {
+                DebugLog.getInstance().log(" @getWorkItemEnum . Exception thrown . " + ex.getMessage());
+            }
         }
         return re ;
     }
 
+    /**
+     * Maintain only one record in store
+     * Clear store each time before adding record
+     * @param lots
+     * @param listener
+     */
     public static void saveLotNumbers(LotNumbers lots, StorageListener listener) {
         Storage storage = getLotStorage(listener);
-
-        storage.save(lots);
+        if(storage.getNumRecords() > 0){
+            storage.delete();
+        }
+        if(storage.save(lots)){
+            System.out.println("Successfully saved ");
+        }
 
     }
 
@@ -179,16 +201,36 @@ public class WFStorage {
     }
 
     public static Vector getMWorkItemListWithData(StorageListener listener) {
-        Vector workItemList = getMWorkItemList(listener);
-        Vector wirWithData = new Vector(3);
-        int size = workItemList.size();
-        for (int i = 0; i < size; i++) {
-            MWorkItem wir = (MWorkItem) workItemList.elementAt(i);
-            if (wir.getDataRecId() != -1)
-                wirWithData.addElement(wir);
+        Vector resp = new Vector() ;
+        for(Enumeration e = getCompleteMWorkItemList(listener).elements() ; e.hasMoreElements() ;){
+            int index = Integer.parseInt(e.nextElement().toString());
+            if(index > -1){
+                resp.addElement(getWorkItem(index, listener));
+            }
         }
-        return wirWithData;
+        return resp ;
     }
+
+    public static Vector getCompleteMWorkItemList(StorageListener listener){
+        Vector resp = new Vector();
+        try {
+            RecordStore rs = RecordStore.openRecordStore(WFStorage.getWIRStorageName(), true);
+            if(rs != null){
+                RecordEnumeration re = rs.enumerateRecords(null, null, false);
+                for(; re.hasNextElement();){
+                    int index = re.nextRecordId() ;
+                    MWorkItem mwi = getWorkItem(index, listener);
+                    if(completed(mwi)){
+                        resp.addElement(Integer.toString(index));
+                    }
+                }
+            }
+        } catch (RecordStoreException ex) {
+            ex.printStackTrace();
+        }
+        return resp ;
+    }
+
 
     public static void deleteCompleteWorkItems(StorageListener listener,
                                                boolean inclueEmpty) {
@@ -234,33 +276,48 @@ public class WFStorage {
     public static LotNumbers getLotNumbers(StorageListener listener) {
         LotNumbers  lots= null;
         Storage storage = getLotStorage(listener);
-        //Vector  vector  = storage.read(new MWorkItem().getClass());
-        System.out.println("Before reading lots..");
         int numRecs= storage.getNumRecords();
-
-        System.out.println("Number of Records in WF =>"+numRecs);
-
         if (numRecs>0) {
-            lots = (LotNumbers) storage.readFirst(LotNumbers.class);
+            Vector resp = storage.read(LotNumbers.class);
+            for(Enumeration e = resp.elements() ; e.hasMoreElements();){
+                lots = (LotNumbers)e.nextElement();
+            }
         }
-
-
-
-        System.out.println("After reading lots..");
-
-        if (lots!=null) {
-            //
-            System.out.println("Gotten Lots=> SO not Null"+lots.getLotNumbers());
-
-
-        }else{
-            System.out.println("Gotten Lots=>Which are null");
-            lots = new LotNumbers();
-            lots.setLotNumbers("Refresh to update...,");
-        }
-
         return lots;
     }
+
+
+    public static void deleteAllWorkItems(StorageListener listener, boolean inclueEmpty) {
+        Vector workItemList = getMWorkItemList(listener);
+        if(workItemList!=null){
+            
+                int size = workItemList.size();
+                for (int i = 0; i < size; i++) {
+                    MWorkItem wir = (MWorkItem) workItemList.elementAt(i);
+                    //deleteWorkItem(wir, listener);
+                    deleteFormDataForWir(wir, listener);
+                }
+                DebugLog.getInstance().log(" @deleteworkItems . About to delete wir store . Size before : " + getWirStorage(listener).getNumRecords());
+               Storage storage = getWirStorage(listener);
+               storage.close();
+               storage.deleteStore();
+
+               DebugLog.getInstance().log(" @deleteworkitems . After deleting store . size of store is :" + getWirStorage(listener).getNumRecords());
+
+                
+            
+        }
+
+    }
+
+    public static void deleteFormDataForWir(MWorkItem wir, StorageListener listener) {
+        if (wir.getDataRecId() != -1) {
+            OpenXdataDataStorage.deleteFormData(wir.getStudyId(), getFormData(wir, false));
+        }
+
+
+    }
+
 
 
 }
