@@ -44,7 +44,8 @@ public class WIRDownload implements Persistent, StorageListener {
     }
 
     public void errorOccured(String errorMessage, Exception e) {
-        System.out.println(" Error occured ");
+        if (errorMessage != null )System.out.println(" Error occured :" + errorMessage);
+        else System.out.println(" Error occured :" + errorMessage);
     }
 
     public Vector getWirSummaries() {

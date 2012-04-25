@@ -103,7 +103,7 @@ public class WIRSummary extends AbstractRecord {
 		}
 	    }
 	} catch (Exception ex) {
-	    throw new RuntimeException("Error occure while loading the workitem from Record Store");
+	    throw new RuntimeException("Error occured while loading the workitem from Record Store");
 	} finally {
 	    if (recStorage != null) {
 		try {

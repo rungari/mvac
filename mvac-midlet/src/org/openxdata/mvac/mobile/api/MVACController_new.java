@@ -223,7 +223,7 @@ public class MVACController_new implements ITransportListener, TransportLayerLis
             }
 
         } else {
-            System.out.println("My Error with null excp");
+            DebugLog.getInstance().log("My Error with null excp");
             if (clistener != null) {
                 clistener.error(Constants.ERROR);
             }

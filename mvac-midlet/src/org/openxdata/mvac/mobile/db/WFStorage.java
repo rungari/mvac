@@ -124,7 +124,7 @@ public class WFStorage {
                 re = rs.enumerateRecords(null, new WFDateSorter(), false);
             }
         } catch (RecordStoreException ex) {
-            System.out.println(" ERROR : Exception thrown when loading store ." + ex.getMessage());
+            DebugLog.getInstance().log(" ERROR : Exception thrown when loading store ." + ex.getMessage());
         }finally{
             if(rs != null ) try {
                 rs.closeRecordStore();
@@ -298,9 +298,9 @@ public class WFStorage {
                     deleteFormDataForWir(wir, listener);
                 }
                 DebugLog.getInstance().log(" @deleteworkItems . About to delete wir store . Size before : " + getWirStorage(listener).getNumRecords());
-               Storage storage = getWirStorage(listener);
-               storage.close();
-               storage.deleteStore();
+//               Storage storage = getWirStorage(listener);
+//               storage.close();
+//               storage.deleteStore();
 
                DebugLog.getInstance().log(" @deleteworkitems . After deleting store . size of store is :" + getWirStorage(listener).getNumRecords());
 

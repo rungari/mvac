@@ -5,6 +5,7 @@
         <property name="midp" value="${WTK-ROOT}"/>
         <property name="midp_lib" value="${midp}/lib/midpapi20.jar"/>
         <property name="cldc_lib" value="${midp}/lib/cldcapi11.jar"/>
+        <property name="fileconn_lib" value="${midp}/lib/jsr75.jar"/>
         <property name="mmapi" value="${midp}/lib/mmapi.jar"/>
         <property name="openxdata-midp" value="../../core/openxdata-midp/dist/openxdata-midp.jar"/>
         <property name="openxdata" value="../../core/openxdata/dist/openxdata.jar"/>
@@ -87,6 +88,7 @@
                                 <pathelement location="${jzlib}"/>
                                 <pathelement location="${wf.mobile.model}"/>
                                 <pathelement location="${cldc_lib}" />
+								<pathelement location="${fileconn_lib}" />
                                 <pathelement location="${lwuit}" />
                                 <pathelement location="${kxml}" />
                          </classpath>
@@ -102,6 +104,7 @@
                         <bootclasspath>
                                 <pathelement location="${midp_lib}"/>
                                 <pathelement location="${cldc_lib}"/>
+								<pathelement location="${fileconn_lib}" />
                                 <pathelement location="${openxdata}"/>
                                 <pathelement location="${dbutils}"/>
                                 <pathelement location="${lwuit}"/>
@@ -116,6 +119,7 @@
                     <bootclasspath>
                                 <pathelement location="${midp_lib}"/>
                                 <pathelement location="${cldc_lib}"/>
+								<pathelement location="${fileconn_lib}" />
                         </bootclasspath>
                         
                 </wtkpreverify>
@@ -124,7 +128,7 @@
         <target name="preverify" depends="clean, init, compile, preverivfy-external,preverivfy-external-kxml">
                 <mkdir dir="build/preverified"/>
                 <exec executable="${midp}/bin/preverify">
-                        <arg line=" -classpath ${midp_lib}${path.separator}${cldc_lib}${path.separator}${openxdata-midp}${path.separator}${dbutils}${path.separator}${openxdata}${path.separator}${midp-dbutils}${path.separator}${midp-mvc}${path.separator}${midp-utils}${path.separator}${transport-layer}${path.separator}${jzlib}${path.separator}${wf.mobile.model}${path.separator}${bluetooth-client}${path.separator}${lwuit}${path.separator}${kxml}"/>
+                        <arg line=" -classpath ${midp_lib}${path.separator}${cldc_lib}${path.separator}${fileconn_lib}${path.separator}${openxdata-midp}${path.separator}${dbutils}${path.separator}${openxdata}${path.separator}${midp-dbutils}${path.separator}${midp-mvc}${path.separator}${midp-utils}${path.separator}${transport-layer}${path.separator}${jzlib}${path.separator}${wf.mobile.model}${path.separator}${bluetooth-client}${path.separator}${lwuit}${path.separator}${kxml}"/>
                         <arg line="-d build/preverified"/>
                         <arg line="bin"/>
                 </exec>
@@ -137,6 +141,7 @@
                 <proguard microedition="on" overloadaggressively="on" repackageclasses="on" allowaccessmodification="on" printseeds="on" usemixedcaseclassnames="false">
                         <libraryjar file="${midp_lib}" />
                         <libraryjar file="${cldc_lib}" />
+						<libraryjar file="${fileconn_lib}" />
                         <libraryjar file="${mmapi}" />
                         <libraryjar file="${bluecove}" />
                         <libraryjar file="${lwuit}" />
@@ -159,7 +164,7 @@
                 <property name="dir-preverified-obf" value="build/obf/preverifiedobf"/>
                 <mkdir dir="${dir-preverified-obf}"/>
                 <exec executable="${midp}/bin/preverify">
-                        <arg line="-classpath ${midp_lib}${path.separator}${cldc_lib}${path.separator}${bluecove}${path.separator}${wf.mobile.model}${path.separator}${lwuit}${path.separator}${kxml}"/>
+                        <arg line="-classpath ${midp_lib}${path.separator}${cldc_lib}${path.separator}${fileconn_lib}${path.separator}${bluecove}${path.separator}${wf.mobile.model}${path.separator}${lwuit}${path.separator}${kxml}"/>
                         <arg line="-d ${dir-preverified-obf}"/>
                         <arg line="${dir-obf-extract}"/>
                 </exec>
@@ -247,7 +252,7 @@
         <target name="preverify-onlythisproject" >
                 <mkdir dir="build/preverified"/>
                 <exec executable="${midp}/bin/preverify">
-                        <arg line=" -classpath ${midp_lib}${path.separator}${cldc_lib}${path.separator}${openxdata-midp}${path.separator}${dbutils}${path.separator}${openxdata}${path.separator}${midp-dbutils}${path.separator}${midp-mvc}${path.separator}${midp-utils}${path.separator}${transport-layer}${path.separator}${jzlib}${path.separator}${wf.mobile.model}${path.separator}${bluetooth-client}${path.separator}${lwuit}${path.separator}${kxml}"/>
+                        <arg line=" -classpath ${midp_lib}${path.separator}${cldc_lib}${path.separator}${fileconn_lib}${path.separator}${openxdata-midp}${path.separator}${dbutils}${path.separator}${openxdata}${path.separator}${midp-dbutils}${path.separator}${midp-mvc}${path.separator}${midp-utils}${path.separator}${transport-layer}${path.separator}${jzlib}${path.separator}${wf.mobile.model}${path.separator}${bluetooth-client}${path.separator}${lwuit}${path.separator}${kxml}"/>
                         <arg line="-d build/preverified"/>
                         <arg line="bin"/>
                 </exec>
